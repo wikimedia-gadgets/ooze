@@ -1,10 +1,12 @@
 import { useState } from 'preact/hooks'
 import Button from './ooui/components/Button'
+import Message from './ooui/components/Message';
 import TextInput from './ooui/components/TextInput';
 
 export function App() {
   const [count, setCount] = useState(0)
   const [redButtonClicked, setRedButtonClicked] = useState(false);
+  const [text, setText] = useState("Type something in the text input above!");
 
   return (
     <div>
@@ -12,17 +14,21 @@ export function App() {
       <p>OOUI + Preact + TypeScript = OOZE</p>
       <TextInput on={{
         change: value => {
-          console.log(value);
+          setText(value.toString());
         }}}
         configOptions={{
+          value: text,
           placeholder: "Type something here",
         }}
       />
+      <br />
+
       <Button on={{click: ()=>{
         setCount(count + 1)
       }}}>
         {`You've clicked me ${count} times!`}
       </Button>
+      <br />
 
       <Button on={{click: ()=>{
         setRedButtonClicked(!redButtonClicked)
@@ -32,6 +38,13 @@ export function App() {
       }}>
         {redButtonClicked ? "You've clicked me!" : "Click me!"}
       </Button>
+      <br/>
+
+      <Message configOptions={{
+        type: "error",
+      }}>
+        {text}
+      </Message>
     </div>
   )
 }
