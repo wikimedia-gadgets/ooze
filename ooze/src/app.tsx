@@ -15,6 +15,16 @@ export function App() {
       }}>
         {`You've clicked me ${count} times!`}
       </Button>
+
+      <Button onClick={()=>{
+        alert("Red button clicked!")
+      }} configOptions={{
+        icon: "alert",
+        framed: false,
+        flags: ["destructive"],
+      }}>
+        Red button
+      </Button>
     </div>
   )
 }

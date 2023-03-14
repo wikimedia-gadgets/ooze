@@ -8,6 +8,7 @@ import { useEffect } from "preact/hooks";
 interface ButtonProps {
     children?: string, // The text to display on the button
     onClick: () => void,
+    configOptions?: OO.ui.ButtonWidget.ConfigOptions,
 }
 
 export default function Button(props: ButtonProps) {
@@ -19,13 +20,13 @@ export default function Button(props: ButtonProps) {
     // When the component is mounted, render the OOUI button widget
     // into the span element
     useEffect(() => {
-        console.log("mounted");
         if (!wrapperRef.current) return;
 
         // If buttonWidget is undefined, make a new one
         if (!buttonWidget) {
             buttonWidget = new OO.ui.ButtonWidget({
                 label: props.children?.toString() ?? "Button",
+                ...props.configOptions,
             });
     
             // Add the click handler to the OOUI button widget
@@ -41,16 +42,7 @@ export default function Button(props: ButtonProps) {
             const buttonElement = buttonWidget.$element[0];
             buttonElement.remove();
         };
-    }, []);
-
-    // When the label changes, update the OOUI button widget
-    useEffect(() => {
-        console.log("label changed");
-        if (!buttonWidget) return;
-        buttonWidget.setLabel(props.children?.toString() ?? "Button");
-    }, [props.children]);
-
-
+    });
     // Return an empty span element to render into
     return <span ref={wrapperRef}>here i am</span>;
 }
