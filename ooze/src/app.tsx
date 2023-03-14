@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks'
+import Button from './ooui/components/Button'
 
 export function App() {
   const [count, setCount] = useState(0)
@@ -9,8 +10,11 @@ export function App() {
       top: "50%",
       left: "50%",
     }}>
-      <p>Hello! State is {count}</p>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <Button onClick={()=>{
+        setCount(count + 1)
+      }}>
+        {`You've clicked me ${count} times!`}
+      </Button>
     </div>
   )
 }

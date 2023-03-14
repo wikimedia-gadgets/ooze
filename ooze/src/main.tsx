@@ -5,11 +5,20 @@ Load and render the app into the DOM. Initializes OOUI too.
 */
 import { render } from 'preact'
 import { App } from './app'
+import initOOUI from './ooui/OOUIInit';
 
-// Create a new element to render into
-const oozeContainer = document.createElement("div");
-oozeContainer.id = "ooze-container";
-document.body.appendChild(oozeContainer);
+(async () => {
+    // Initialize OOUI
+    if (!(await initOOUI())) {
+        console.error("OOUI failed to initialize!");
+        return;
+    }
 
-// Render the app into the new element
-render(<App />, oozeContainer);
+    // Create a new element to render into
+    const oozeContainer = document.createElement("div");
+    oozeContainer.id = "ooze-container";
+    document.body.appendChild(oozeContainer);
+
+    // Render the app into the new element
+    render(<App />, oozeContainer);
+})();

@@ -17,6 +17,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
   },
-  "include": ["src"],
+  "include": ["src", "./node_modules/types-mediawiki"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
