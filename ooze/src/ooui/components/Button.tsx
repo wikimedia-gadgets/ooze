@@ -3,6 +3,7 @@ Preact component for an OOUI button.
 */
 
 import { Component, createRef, Fragment, JSX } from "preact";
+import { useEffect } from "preact/hooks";
 
 interface ButtonProps {
     children?: string, // The text to display on the button
@@ -13,29 +14,43 @@ export default function Button(props: ButtonProps) {
     const wrapperRef = createRef<HTMLSpanElement>();
 
     // Construct the OOUI button widget for this component
-    const buttonWidget = new OO.ui.ButtonWidget({
-        label: props.children?.toString() ?? "Button",
-    });
+    let buttonWidget:OO.ui.ButtonWidget;
 
-    // On unmount, remove the OOUI button widget from the DOM
-    // and remove the click handler
-    Component.prototype.componentWillUnmount = () => {
-        buttonWidget.off("click", props.onClick);
+    // When the component is mounted, render the OOUI button widget
+    // into the span element
+    useEffect(() => {
+        console.log("mounted");
+        if (!wrapperRef.current) return;
+
+        // If buttonWidget is undefined, make a new one
+        if (!buttonWidget) {
+            buttonWidget = new OO.ui.ButtonWidget({
+                label: props.children?.toString() ?? "Button",
+            });
+    
+            // Add the click handler to the OOUI button widget
+            buttonWidget.on("click", props.onClick);
+        }
+
         const buttonElement = buttonWidget.$element[0];
-        buttonElement.remove();
-    };
+        wrapperRef.current?.appendChild(buttonElement);
 
-    // Add the click handler to the OOUI button widget
-    buttonWidget.on("click", props.onClick);
+        // When the component is unmounted, remove the OOUI button widget
+        return () => {
+            buttonWidget.off("click", props.onClick);
+            const buttonElement = buttonWidget.$element[0];
+            buttonElement.remove();
+        };
+    }, []);
+
+    // When the label changes, update the OOUI button widget
+    useEffect(() => {
+        console.log("label changed");
+        if (!buttonWidget) return;
+        buttonWidget.setLabel(props.children?.toString() ?? "Button");
+    }, [props.children]);
+
 
     // Return an empty span element to render into
-    return <span ref={ref => {
-        wrapperRef.current = ref;
-        // Remove all old children
-        while (ref?.firstChild) {
-            ref.removeChild(ref.firstChild);
-        }
-        // Replace the contents of the span with the OOUI button widget
-        ref?.appendChild(buttonWidget.$element[0]);
-    }} />;
+    return <span ref={wrapperRef}>here i am</span>;
 }
