@@ -20,7 +20,6 @@ export function App() {
         alert("Red button clicked!")
       }} configOptions={{
         icon: "alert",
-        framed: false,
         flags: ["destructive"],
       }}>
         Red button
