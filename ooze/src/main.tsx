@@ -1,3 +1,8 @@
+/*
+OOZE by Ed6767
+---
+Load and render the app into the DOM. Initializes OOUI too.
+*/
 import { render } from 'preact'
 import { App } from './app'
 
