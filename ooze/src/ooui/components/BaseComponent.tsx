@@ -1,6 +1,11 @@
 import { createRef } from "preact";
 import { useEffect } from "preact/hooks";
 
+// Type for events 
+export type EventMap<T> = {
+    [key in keyof T]?: (value: T[key]) => void
+}
+
 /*
 Renders any OOUI widget into a Preact component.
 T: The type of the OOUI widget

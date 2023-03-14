@@ -1,15 +1,23 @@
 import { useState } from 'preact/hooks'
 import Button from './ooui/components/Button'
+import TextInput from './ooui/components/TextInput';
 
 export function App() {
   const [count, setCount] = useState(0)
+  const [redButtonClicked, setRedButtonClicked] = useState(false);
 
   return (
-    <div style={{
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-    }}>
+    <div>
+      <h1>OOZE</h1>
+      <p>OOUI + Preact + TypeScript = OOZE</p>
+      <TextInput on={{
+        change: value => {
+          console.log(value);
+        }}}
+        configOptions={{
+          placeholder: "Type something here",
+        }}
+      />
       <Button on={{click: ()=>{
         setCount(count + 1)
       }}}>
@@ -17,12 +25,12 @@ export function App() {
       </Button>
 
       <Button on={{click: ()=>{
-        alert("Red button clicked!")
+        setRedButtonClicked(!redButtonClicked)
       }}} configOptions={{
         icon: "alert",
-        flags: ["destructive"],
+        flags: ["primary", "destructive"],
       }}>
-        Red button
+        {redButtonClicked ? "You've clicked me!" : "Click me!"}
       </Button>
     </div>
   )

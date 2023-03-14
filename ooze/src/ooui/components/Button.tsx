@@ -2,13 +2,11 @@
 Preact component for an OOUI button.
 */
 
-import { Component, createRef, Fragment, JSX } from "preact";
-import { useEffect } from "preact/hooks";
-import BaseComponent from "./BaseComponent";
+import BaseComponent, { EventMap } from "./BaseComponent";
 
 interface ButtonProps {
     children?: string, // The text to display on the button
-    on?: { [key: string]: (event: any) => void }, // Event handlers
+    on?: EventMap<OO.ui.ButtonWidget.EventMap>, // Event handlers
     configOptions?: OO.ui.ButtonWidget.ConfigOptions,
 }
 

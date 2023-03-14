@@ -17,7 +17,7 @@ import initOOUI from './ooui/OOUIInit';
     // Create a new element to render into
     const oozeContainer = document.createElement("div");
     oozeContainer.id = "ooze-container";
-    document.body.appendChild(oozeContainer);
+    document.querySelector("#app")?.appendChild(oozeContainer);
 
     // Render the app into the new element
     render(<App />, oozeContainer);
