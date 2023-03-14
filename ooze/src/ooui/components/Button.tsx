@@ -8,7 +8,7 @@ import BaseComponent from "./BaseComponent";
 
 interface ButtonProps {
     children?: string, // The text to display on the button
-    onClick: () => void,
+    on?: { [key: string]: (event: any) => void }, // Event handlers
     configOptions?: OO.ui.ButtonWidget.ConfigOptions,
 }
 
@@ -20,9 +20,7 @@ export default function Button(props: ButtonProps) {
                 label: props.children,
                 ...props.configOptions,
             }}
-            eventHandlers={{
-                click: props.onClick,
-            }}
+            eventHandlers={props.on}
         />
     );
 

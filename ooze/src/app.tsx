@@ -10,15 +10,15 @@ export function App() {
       top: "50%",
       left: "50%",
     }}>
-      <Button onClick={()=>{
+      <Button on={{click: ()=>{
         setCount(count + 1)
-      }}>
+      }}}>
         {`You've clicked me ${count} times!`}
       </Button>
 
-      <Button onClick={()=>{
+      <Button on={{click: ()=>{
         alert("Red button clicked!")
-      }} configOptions={{
+      }}} configOptions={{
         icon: "alert",
         flags: ["destructive"],
       }}>
