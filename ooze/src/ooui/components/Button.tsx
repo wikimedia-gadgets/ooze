@@ -5,9 +5,10 @@ Preact component for an OOUI button.
 import BaseComponent, { EventMap } from "./BaseComponent";
 
 interface ButtonProps {
-    children?: string, // The text to display on the button
+    label: string, // The text to display on the button
     on?: EventMap<OO.ui.ButtonWidget.EventMap>, // Event handlers
     configOptions?: OO.ui.ButtonWidget.ConfigOptions,
+    updateDOMOnPropsChange?: boolean,
 }
 
 export default function Button(props: ButtonProps) {
@@ -15,11 +16,16 @@ export default function Button(props: ButtonProps) {
         <BaseComponent
             widgetClass={OO.ui.ButtonWidget}
             configOptions={{
-                label: props.children,
+                label: props.label,
                 ...props.configOptions,
             }}
             eventHandlers={props.on}
-            updateDOMOnPropsChange={true}
+            widgetReflectsProps
+            updateDOMOnPropsChange={props.updateDOMOnPropsChange}
+            configUpdateCallback={(widget, newConfigOptions) => {
+                console.log("configUpdateCallback");
+                widget.setLabel(newConfigOptions.label || "Button");
+            }}
         />
     );
 

@@ -53,6 +53,7 @@ export default function BaseComponent<T extends OO.ui.Widget, CT extends OO.ui.W
 
     // When props.configOptions changes, update the widget
     useEffect(() => {
+        console.log("effect");
         if (!widget || !wrapperRef.current) return;
 
         // Don't run if updateDOMOnPropsChange is true AND configUpdateCallback isn't set
@@ -66,11 +67,10 @@ export default function BaseComponent<T extends OO.ui.Widget, CT extends OO.ui.W
                 if (widget[methodName]) {
                     // @ts-ignore
                     widget[methodName](value);
-                    console.log("Called " + methodName);
                 }
             }
 
-            if (!props.updateDOMOnPropsChange) return; // We're done here
+            if (!props.updateDOMOnPropsChange && !props.configUpdateCallback) return; // We're done here
         }
 
         // If configUpdateCallback is set, call it
