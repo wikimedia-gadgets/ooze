@@ -23,7 +23,6 @@ export default function Button(props: ButtonProps) {
             widgetReflectsProps
             updateDOMOnPropsChange={props.updateDOMOnPropsChange}
             configUpdateCallback={(widget, newConfigOptions) => {
-                console.log("configUpdateCallback");
                 widget.setLabel(newConfigOptions.label || "Button");
             }}
         />

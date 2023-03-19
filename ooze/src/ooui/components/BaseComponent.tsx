@@ -53,7 +53,6 @@ export default function BaseComponent<T extends OO.ui.Widget, CT extends OO.ui.W
 
     // When props.configOptions changes, update the widget
     useEffect(() => {
-        console.log("effect");
         if (!widget || !wrapperRef.current) return;
 
         // Don't run if updateDOMOnPropsChange is true AND configUpdateCallback isn't set

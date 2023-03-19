@@ -22,7 +22,6 @@ export default function TextInput(props: TextInputProps) {
             eventHandlers={props.on}
             widgetReflectsProps
             configUpdateCallback={(widget, newConfigOptions) => {
-                console.log("hi")
                 widget.setTitle(newConfigOptions.value || "Button");
             }}
         />

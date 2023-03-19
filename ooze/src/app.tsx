@@ -1,18 +1,13 @@
 import { useEffect, useState } from 'preact/hooks'
 import Button from './ooui/components/Button'
 import Message from './ooui/components/Message';
+import ProgressBar from './ooui/components/ProgressBar';
 import TextInput from './ooui/components/TextInput';
 
 export function App() {
   const [count, setCount] = useState(0)
   const [redButtonClicked, setRedButtonClicked] = useState(false);
   const [text, setText] = useState("Type something in the text input above!");
-
-  // Log all state changes
-  useEffect(() => {
-    console.log("State changed!");
-  }, [count, redButtonClicked, text]);
-
 
   return (
     <div>
@@ -40,11 +35,10 @@ export function App() {
 
       <Button on={{
         click: () => {
-          console.log("Clicked!");
           setRedButtonClicked(redButtonClicked => !redButtonClicked)
         }
       }} configOptions={{
-        icon: "alert",
+        icon: redButtonClicked ? "check" : "close",
         flags: ["primary", "destructive"],
       }} label={redButtonClicked ? "You've clicked me!" : "Click me!"} />
       <br />
@@ -54,6 +48,14 @@ export function App() {
       }}>
         {text}
       </Message>
+
+      <Button on={{
+        click: () => {
+          setText(text => text + "!");
+        }
+      }} label="Add an exclamation point to the text above!" />
+
+      <ProgressBar progress={70} />
     </div>
   )
 }
