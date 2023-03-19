@@ -19,6 +19,7 @@ export default function Button(props: ButtonProps) {
                 ...props.configOptions,
             }}
             eventHandlers={props.on}
+            updateDOMOnPropsChange={true}
         />
     );
 

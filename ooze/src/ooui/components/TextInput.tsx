@@ -20,6 +20,10 @@ export default function TextInput(props: TextInputProps) {
                 ...props.configOptions,
             }}
             eventHandlers={props.on}
+            configUpdateCallback={async (widget, newConfigOptions) => {
+                widget.setValue(newConfigOptions.value || "");
+                return;
+            }}
         />
     );
 

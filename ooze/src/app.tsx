@@ -14,7 +14,7 @@ export function App() {
       <p>OOUI + Preact + TypeScript = OOZE</p>
       <TextInput on={{
         change: value => {
-          setText(value.toString());
+          setText("hi" + value.toString());
         }}}
         configOptions={{
           value: text,

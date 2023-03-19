@@ -17,6 +17,7 @@ export default function Message(props: MessageProps) {
                 ...props.configOptions,
             }}
             eventHandlers={props.on}
+            updateDOMOnPropsChange={true}
         />
     );
 }
