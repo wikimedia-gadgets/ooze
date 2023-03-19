@@ -19,7 +19,7 @@ export default function TextInput(props: TextInputProps) {
                 value: props.value,
                 ...props.configOptions,
             }}
-            eventHandlers={(props.on as any)}
+            eventHandlers={props.on}
         />
     );
 
