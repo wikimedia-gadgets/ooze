@@ -27,7 +27,15 @@ interface BaseComponentProps<T extends OO.ui.Widget, CT extends OO.ui.Widget.Con
 
     // If set and updateDOMOnPropsChange is false, this function will be called
     // when the props change so that the configuration can be updated by the parent component
+    // This can cause an infinite loop if you don't add state checks
     configUpdateCallback?: (widget: T, newConfigOptions: CT) => void,
+
+    // If set to true, we'll attempt to call "setX" methods on the widget when props change
+    // This is a hacky way to update the widget, but it works for most widgets
+    // If you want to do something more complicated, use configUpdateCallback instead or
+    // set updateDOMOnPropsChange to true to completely re-render the widget
+    // This can cause an infinite loop if you don't add state checks
+    widgetReflectsProps?: boolean,
 }
 
 export default function BaseComponent<T extends OO.ui.Widget, CT extends OO.ui.Widget.ConfigOptions>(props: BaseComponentProps<T, CT>) {
@@ -48,7 +56,22 @@ export default function BaseComponent<T extends OO.ui.Widget, CT extends OO.ui.W
         if (!widget || !wrapperRef.current) return;
 
         // Don't run if updateDOMOnPropsChange is true AND configUpdateCallback isn't set
-        if (!props.updateDOMOnPropsChange && !props.configUpdateCallback) return;
+        if (!props.updateDOMOnPropsChange && !props.configUpdateCallback && !props.widgetReflectsProps) return;
+
+        if (props.widgetReflectsProps) {
+            // If widgetReflectsProps is set, we'll attempt to call "setX" methods on the widget
+            for (const [key, value] of Object.entries(props.configOptions || {})) {
+                const methodName = "set" + key.charAt(0).toUpperCase() + key.slice(1);
+                // @ts-ignore - We're calling a method that may or may not exist
+                if (widget[methodName]) {
+                    // @ts-ignore
+                    widget[methodName](value);
+                    console.log("Called " + methodName);
+                }
+            }
+
+            if (!props.updateDOMOnPropsChange) return; // We're done here
+        }
 
         // If configUpdateCallback is set, call it
         // yes, this can and will cause an infinite loop if you don't add state checks

@@ -14,8 +14,12 @@ export function App() {
       <p>OOUI + Preact + TypeScript = OOZE</p>
       <TextInput on={{
         change: value => {
-          setText("hi" + value.toString());
-        }}}
+          // Update the text state variable, appended with "hi"
+          // Do not update the text state if the change event is the expected result of
+          // the text state being updated
+          setText(value.toString());
+        }
+      }}
         configOptions={{
           value: text,
           placeholder: "Type something here",
@@ -23,22 +27,26 @@ export function App() {
       />
       <br />
 
-      <Button on={{click: ()=>{
-        setCount(count + 1)
-      }}}>
+      <Button on={{
+        click: () => {
+          setCount(count + 1)
+        }
+      }}>
         {`You've clicked me ${count} times!`}
       </Button>
       <br />
 
-      <Button on={{click: ()=>{
-        setRedButtonClicked(!redButtonClicked)
-      }}} configOptions={{
+      <Button on={{
+        click: () => {
+          setRedButtonClicked(!redButtonClicked)
+        }
+      }} configOptions={{
         icon: "alert",
         flags: ["primary", "destructive"],
       }}>
         {redButtonClicked ? "You've clicked me!" : "Click me!"}
       </Button>
-      <br/>
+      <br />
 
       <Message configOptions={{
         type: "error",
