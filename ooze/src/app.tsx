@@ -3,6 +3,7 @@ import Button from './ooui/components/Button'
 import Message from './ooui/components/Message';
 import ProgressBar from './ooui/components/ProgressBar';
 import TextInput from './ooui/components/TextInput';
+import Tray from './tray/Tray';
 
 export function App() {
   const [count, setCount] = useState(0)
@@ -11,6 +12,7 @@ export function App() {
 
   return (
     <div>
+      <Tray />
       <h1>OOZE</h1>
       <p>OOUI + Preact + TypeScript = OOZE</p>
       <TextInput on={{
