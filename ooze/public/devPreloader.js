@@ -5,12 +5,12 @@
     // Vite
     const script = document.createElement('script');
     script.type = 'module';
-    script.src = `http://localhost:5730/@vite/client`;
+    script.src = `http://localhost:5729/@vite/client`;
     document.body.appendChild(script);
 
     // Main
     const script2 = document.createElement('script');
     script2.type = 'module';
-    script2.src = `http://localhost:5730/src/main.tsx?${random}`;
+    script2.src = `http://localhost:5729/src/main.tsx?${random}`;
     document.body.appendChild(script2);
 })();
