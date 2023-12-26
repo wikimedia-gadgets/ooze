@@ -17,11 +17,8 @@
 
 /* Slight fade in when .oozeMenu is added to the DOM */
 .oozeMenu {
-  opacity: 0;
-  transform: scale(0.8);
-  animation: oozeMenuFadeIn 0.2s ease-in-out forwards;
-  height: 30rem;
-  width: 30rem;
+  max-height: 30rem;
+  max-width: 30rem;
   padding: 0 !important;
   display: flex;
   flex-direction: column-reverse;
@@ -33,6 +30,8 @@
     flex-direction: column;
     height: 100vh;
     width: 100vw;
+    max-height: unset;
+    max-width: unset;
   }
 
   .oozeMenuContainer > .cdx-toggle-button--toggled-on {
@@ -51,16 +50,10 @@
     bottom: 1rem;
     left: 1rem;
   }
-}
 
-@keyframes oozeMenuFadeIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
+  /* No scroll on open dialog */
+  body:has(.oozeMenuContainer > .cdx-toggle-button--toggled-on) {
+    overflow: hidden;
   }
 }
 
@@ -70,9 +63,32 @@
   align-items: center;
   justify-content: space-between;
   background-color: var(--background-color-interactive);
-  font-weight: bold;
 }
 
 .oozeMenuTitle {
   padding: 1rem;
+  font-weight: lighter;
+}
+
+/* Menu list */
+
+.oozeMenuContent {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.oozeMenuOption {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.oozeMenuOption:hover {
+  background-color: var(--background-color-interactive);
 }
