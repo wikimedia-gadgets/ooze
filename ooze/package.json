@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@wikimedia/codex": "^1.2.0",
+    "@wikimedia/codex-design-tokens": "^1.2.0",
     "vue": "^3.3.11"
   },
   "devDependencies": {
