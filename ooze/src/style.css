@@ -1,7 +1,7 @@
 @import '@wikimedia/codex-design-tokens/theme-wikimedia-ui.css';
 @import '@wikimedia/codex/dist/codex.style.css';
 
-.oozeMenu {
+.oozeMenuContainer {
   position: fixed;
   bottom: 1rem;
   left: 1rem;
@@ -11,6 +11,68 @@
   /* Ensure the open/close button always remains at the bottom */
   flex-direction: column-reverse; 
   gap: 1rem;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+}
+
+/* Slight fade in when .oozeMenu is added to the DOM */
+.oozeMenu {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: oozeMenuFadeIn 0.2s ease-in-out forwards;
+  height: 30rem;
+  width: 30rem;
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+/* On mobile (screen smaller than 650px, ooze menu takes up full screen and flex-direction is column so header is at top */
+@media (max-width: 650px) {
+  .oozeMenu {
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .oozeMenuContainer > .cdx-toggle-button--toggled-on {
+    display: none;
+  }
+
+  /* Ensure it's displayed correctly with no unnecessary gaps */
+  .oozeMenuContainer {
+    bottom: 0;
+    left: 0;
+  }
+
+  /* Opens right away */
+  .oozeMenuButton {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+  }
+}
+
+@keyframes oozeMenuFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.oozeMenuFooter {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--background-color-interactive);
+  font-weight: bold;
+}
+
+.oozeMenuTitle {
+  padding: 1rem;
 }
