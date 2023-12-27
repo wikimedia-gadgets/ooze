@@ -6,7 +6,7 @@
   export let component: DefineComponent<any, any, any, any, any, any, any, any, any, any, any, any, any>;
 
   let vueInstance: App<Element> | undefined;
-  let container: string | Element;
+  export let container: string | Element | undefined = undefined;
 
   let slotContainer: Element;
 
@@ -35,6 +35,7 @@
   }
 
   onMount(() => {
+    if (!container) return;
     vueInstance = createApp({
       setup() {
         // Watch for changes in the props ref and re-render when it changes

@@ -18,7 +18,7 @@
 /* Slight fade in when .oozeMenu is added to the DOM */
 .oozeMenu {
   max-height: 30rem;
-  max-width: 30rem;
+  width: 30rem;
   padding: 0 !important;
   display: flex;
   flex-direction: column-reverse;
@@ -100,4 +100,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+}
+
+.oozeCommandPallet {
+  font-family: monospace;
 }
