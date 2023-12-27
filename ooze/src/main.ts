@@ -1,9 +1,5 @@
 import './app.css'
 import App from './App.svelte'
-import CodexBridge from './lib/CodexBridge'
-
-// Wrap and prepare Vue components
-CodexBridge.init()
 
 // Add ooze to the DOM
 // Create ooze div

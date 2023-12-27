@@ -34,7 +34,8 @@
     max-width: unset;
   }
 
-  .oozeMenuContainer > .cdx-toggle-button--toggled-on {
+  /* Hide the container of the button - have to do this due to the VueBridge */
+  .oozeMenuContainer div:has(.cdx-toggle-button--toggled-on) {
     display: none;
   }
 
@@ -52,7 +53,7 @@
   }
 
   /* No scroll on open dialog */
-  body:has(.oozeMenuContainer > .cdx-toggle-button--toggled-on) {
+  body:has(.oozeMenuContainer .cdx-toggle-button--toggled-on) {
     overflow: hidden;
   }
 }
@@ -91,4 +92,12 @@
 
 .oozeMenuOption:hover {
   background-color: var(--background-color-interactive);
+}
+
+.oozeButtons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
