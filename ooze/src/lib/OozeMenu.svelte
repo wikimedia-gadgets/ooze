@@ -9,6 +9,19 @@
   import CodexIcon from "./vue/CodexIcon.svelte";
   import CodexButton from "./vue/CodexButton.svelte";
 
+  const oozeVer = APP_VERSION;
+
+  const placeHolderMenuItems = [
+    "Edit Protection",
+    "Watch for Edits",
+    "Latest Revision",
+    "Quick Remove",
+    "Warn",
+    "Report",
+    "Block",
+    "History",
+  ];
+
   let menuOpen = false;
 </script>
 
@@ -28,7 +41,7 @@
     <div class="cdx-card oozeMenu">
       <!-- Header/footer (at bottom, or on top on mobile) -->
       <div class="oozeMenuFooter">
-        <p class="oozeMenuTitle">ooze v1.1.1</p>
+        <p class="oozeMenuTitle">ooze v{oozeVer}</p>
         <div class="oozeButtons">
           <!-- Settings button -->
           <CodexButton props={{
@@ -53,6 +66,20 @@
       </div>
 
       <!-- Content -->
+      <div class="oozeMenuContent">
+        <!-- Render placeholder actions -->
+        {#each placeHolderMenuItems as item}
+          <div class="oozeMenuItem">
+            <CodexButton props={{
+              size: "large",
+              weight: "quiet",
+              "aria-label": item,
+            }}>
+              {item}
+            </CodexButton>
+          </div>
+        {/each}
+      </div>
     </div>
   {/if}
 </div>
