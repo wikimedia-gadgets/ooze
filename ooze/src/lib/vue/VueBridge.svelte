@@ -1,7 +1,9 @@
 <script lang="ts">
     import { onMount, onDestroy } from "svelte";
-    import { createApp, h, ref, watch, type App } from "vue";
-    import { CdxButton } from "@wikimedia/codex";
+    import { createApp, h, ref, watch, type App, type DefineComponent } from "vue";
+
+    // Cursed
+    export let component: DefineComponent<any, any, any, any, any, any, any, any, any, any, any, any, any>;
   
     let vueInstance: App<Element> | undefined;
     let container: string | Element;
@@ -27,7 +29,7 @@
     }
   
     function renderFunc() {
-      return h(CdxButton, propsRef.value, () => slotContainer.innerHTML ?? "");
+      return h(component, propsRef.value, () => slotContainer.innerHTML ?? "");
     }
   
     onMount(() => {

@@ -5,16 +5,22 @@
     cdxIconClose,
     cdxIconLock,
   } from "@wikimedia/codex-icons";
-  import VueBridge from "./VueBridge.svelte";
+  import VueBridge from "./vue/VueBridge.svelte";
+  import CodexButton from "./vue/CodexButton.svelte";
+  import CodexToggleButton from "./vue/CodexToggleButton.svelte";
+  import CodexIcon from "./vue/CodexIcon.svelte";
 
   let count = 0;
 </script>
 
 <!-- Mod Menu is shown in bottom left - "Ooze Tools" - when tapped or clicked this opens a big menu  -->
 <div class="oozeMenuContainer">
-  <cdx-toggle-button class="oozeMenuButton" aria-label="OOZE Tool Menu">
-    <cdx-icon icon={cdxIconViewCompact} />
-  </cdx-toggle-button>
+  <CodexToggleButton props={{
+    class: "oozeMenuButton",
+    "aria-label": "OOZE Tool Menu"
+  }}>
+    <CodexIcon icon={cdxIconViewCompact} />
+  </CodexToggleButton>
 
   <div class="cdx-card oozeMenu">
     <!-- Header/footer (at bottom, or on top on mobile) -->
@@ -36,12 +42,10 @@
   </div>
 </div>
 
-<VueBridge
-  props={{
-    "onclick": () => {
-      count++;
-    },
-  }}
->
-  Counter is {count}
-</VueBridge>
+<CodexButton props={{
+  onclick: () => {
+    count++;
+  },
+}}>
+  Hey there! I'm a button! I've been clicked {count} times!
+</CodexButton>
