@@ -5,6 +5,7 @@
     export let value = "";
     export let container: string | Element | undefined = undefined;
     export let props = {};
+
   </script>
   
   <VueBridge component={CdxTextInput} props={{

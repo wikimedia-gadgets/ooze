@@ -10,19 +10,19 @@ And optionally, always last in a command is the "reason/description" for the com
 
 export interface Command {
     name: string;
-    command: string;
-    aliases: string[];
     description: string;
     helpPage?: string;
+    arguments?: CommandArgument[];
+    hasReason?: boolean; // If the command has a reason/description at the end of arguments
+    validate: (args: string[]) => boolean;
 }
 
 export enum CommandArgumentType {
-    "user",
+    "user", // Has quick link
     "page",
     "warningTemplate",
     "welcomeTemplate",
-    "reason",
-    "description",
+    "plainText",
 }
 
 export interface CommandArgument {

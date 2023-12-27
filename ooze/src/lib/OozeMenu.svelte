@@ -11,48 +11,37 @@
   import CodexIcon from "./vue/CodexIcon.svelte";
   import CodexButton from "./vue/CodexButton.svelte";
   import CodexTextInput from "./vue/CodexTextInput.svelte";
+  import { Commands } from "./commands/enwiki/Commands";
+  import CodexMessage from "./vue/CodexMessage.svelte";
 
   const oozeVer = APP_VERSION;
 
-  // Todo: The order of these commands changes depending on page
-  const initialCommands = {
-    we: {
-      name: "Welcome",
-      description: "Welcome a user",
-    },
-    w: {
-      name: "Warn",
-      description: "Warn a user",
-    },
-    r: {
-      name: "Report",
-      description: "Report a user",
-    },
-    b: {
-      name: "Block",
-      description: "Block a user from editing",
-    },
-    ub: {
-      name: "Unblock",
-      description: "Unblock a user from editing",
-    },
-    u: {
-      name: "Undo my last edit",
-      description: "Undo my last edit",
-    },
-    l: {
-      name: "Latest revision",
-      description: "Go to the latest diff of a page",
-    },
-    rm: {
-      name: "Remove selected text",
-      description: "Remove selected text from the page",
-    },
-  };
-
   let commandInputValue = "";
 
+  let firstCommandNotFound = false;
+
   // On command input change
+  $: if (commandInputValue !== "") {
+    // If last character is a space and the command is found in the commands list, run the command
+    const command = Commands[commandInputValue.trim()];
+    if (commandInputValue[commandInputValue.length - 1] === " ") {
+      if (command) {
+        firstCommandNotFound = false;
+
+        firstCommandNotFound = false;
+        console.log("Command found! Running command: " + command.name);
+        commandInputValue = "";
+      } else {
+        console.log("Command not found!");
+        firstCommandNotFound = true;
+      }
+    }
+  }
+
+  // Reset first command not found when command input is cleared
+  $: if (commandInputValue === "") {
+    firstCommandNotFound = false;
+  }
 
   let menuOpen = false;
 
@@ -145,9 +134,18 @@
             size: "large",
             "aria-label": "OOZE Command Pallet",
             class: "oozeCommandPallet",
+            status: firstCommandNotFound ? "error" : "default",
           }}
           bind:value={commandInputValue}
         />
+        {#if firstCommandNotFound}
+          <CodexMessage props={{
+            class: "oozeCommandPalletError",
+          }}>
+            Enter a valid command from the list below
+          </CodexMessage>
+        {/if}
+
       </div>
     </div>
   {/if}
