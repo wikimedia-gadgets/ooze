@@ -13,10 +13,14 @@
   import CodexTextInput from "./vue/CodexTextInput.svelte";
   import { Commands } from "./commands/enwiki/Commands";
   import CodexMessage from "./vue/CodexMessage.svelte";
+  import type { Command } from "./commands/Command";
+  import CodexChip from "./vue/CodexChip.svelte";
 
   const oozeVer = APP_VERSION;
 
   let commandInputValue = "";
+
+  let commandBeingTyped: Command | undefined = undefined;
 
   let firstCommandNotFound = false;
 
@@ -29,7 +33,7 @@
         firstCommandNotFound = false;
 
         firstCommandNotFound = false;
-        console.log("Command found! Running command: " + command.name);
+        commandBeingTyped = command;
         commandInputValue = "";
       } else {
         console.log("Command not found!");
@@ -125,6 +129,34 @@
 
       <!-- Content -->
       <div class="oozeMenuContent">
+        {#if commandBeingTyped}
+          <!-- Chips - show arguments. First one always has a command icon -->
+          <div class="oozeMenuChips">
+            <CodexChip
+              props={{
+                icon: cdxIconFunctionArgument,
+                class: "done",
+              }}
+            >
+              {commandBeingTyped.name}
+            </CodexChip>
+
+            {#if commandBeingTyped.arguments}
+              {#each commandBeingTyped.arguments as arg}
+                <CodexChip>
+                  {arg.name}
+                </CodexChip>
+              {/each}
+            {/if}
+
+            <!-- If reason is needed - show reason chip -->
+            {#if commandBeingTyped.hasReason}
+              <CodexChip>
+                {commandBeingTyped.reasonTitle ?? "Reason"}
+              </CodexChip>
+            {/if}
+          </div>
+        {/if}
         <!-- At top - command pallet - focused when opened -->
         <CodexTextInput
           bind:container={textInput}
@@ -139,13 +171,21 @@
           bind:value={commandInputValue}
         />
         {#if firstCommandNotFound}
-          <CodexMessage props={{
-            class: "oozeCommandPalletError",
-          }}>
+          <CodexMessage
+            props={{
+              class: "oozeCommandPalletError",
+            }}
+          >
             Enter a valid command from the list below
           </CodexMessage>
         {/if}
 
+        <!-- If there if a header component, render it -->
+        {#if commandBeingTyped?.headerComponent}
+          <div class="oozeMenuCommandHeader">
+            <svelte:component this={commandBeingTyped.headerComponent} />
+          </div>
+        {/if}
       </div>
     </div>
   {/if}

@@ -1,4 +1,5 @@
 import { CommandArgumentType, type Command } from "../Command";
+import Warn from "./components/Warn.svelte";
 
 export const Commands: Record<string, Command> = {
     // Welcome
@@ -43,5 +44,6 @@ export const Commands: Record<string, Command> = {
         ],
         hasReason: true,
         validate: () => true,
+        headerComponent: Warn,
     },
 };

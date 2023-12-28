@@ -14,7 +14,10 @@ export interface Command {
     helpPage?: string;
     arguments?: CommandArgument[];
     hasReason?: boolean; // If the command has a reason/description at the end of arguments
+    reasonTitle?: string; // If the command has a reason/description at the end of arguments
+    reasonDescription?: string; // If the command has a reason/description at the end of arguments
     validate: (args: string[]) => boolean;
+    headerComponent?: any;
 }
 
 export enum CommandArgumentType {
