@@ -23,6 +23,8 @@
 
   let commandBeingTyped: Command | undefined = undefined;
 
+  let argumentValues: string[] = [];
+
   let firstCommandNotFound = false;
 
   let commandPalletInputIcon = cdxIconFunctionArgument;
@@ -31,13 +33,26 @@
   // Argument number - used to handle input for commands and arguments. -1 means waiting for command
   let argumentNumber = -1;
 
+  let shouldRefetchArgumentValues = false;
+
+  let menuOpen = false;
+
+  let textInput: Element | undefined = undefined;
+
   $: if (commandBeingTyped && commandBeingTyped.arguments) {
     commandPalletInputIcon =
       commandBeingTyped.arguments[argumentNumber].icon ??
       cdxIconFunctionArgument;
 
-    commandPalletPlaceholder = commandBeingTyped.arguments[argumentNumber]
-      .placeholder ?? `Enter ${commandBeingTyped.arguments[argumentNumber].name}`;
+    commandPalletPlaceholder =
+      commandBeingTyped.arguments[argumentNumber].placeholder ??
+      `Enter ${commandBeingTyped.arguments[argumentNumber].name}`;
+  }
+
+  // On argument change, if argument value already set set commandInputValue to it
+  $: if (shouldRefetchArgumentValues && argumentNumber > -1) {
+    commandInputValue = argumentValues[argumentNumber] ?? "";
+    shouldRefetchArgumentValues = false;
   }
 
   // On command input change
@@ -59,7 +74,9 @@
           }
           break;
         default:
-          argumentNumber++;
+          // Set the argument value
+          argumentValues[argumentNumber] = commandInputValue.trim();
+          if (argumentNumber + 1 < (commandBeingTyped?.arguments?.length as number)) argumentNumber++;
           commandInputValue = "";
           break;
       }
@@ -70,10 +87,6 @@
   $: if (commandInputValue === "") {
     firstCommandNotFound = false;
   }
-
-  let menuOpen = false;
-
-  let textInput: Element | undefined = undefined;
 
   // Window - when / key is pressed, open the menu
   const menuKeyListener = (e: KeyboardEvent) => {
@@ -105,6 +118,31 @@
     // Focus on child input
     textInput?.querySelector("input")?.focus();
   }
+
+  // Handle when backspace, tab or enter is pressed on the text input
+  const handleCommandInputKey = (e: KeyboardEvent) => {
+    // If backspace pressed, ensure the input is already empty
+    // Then subtract 1 from the argument number
+    if (e.key === "Backspace") {
+      if (commandInputValue === "") {
+        e.preventDefault();
+
+        // If the current argument number is 0, set the argument number to -1
+        // and clear the command being typed
+        if (argumentNumber < 1) {
+          argumentNumber = -1;
+          commandBeingTyped = undefined;
+          commandPalletInputIcon = cdxIconFunctionArgument;
+          commandPalletPlaceholder =
+            "Type a command, or use the buttons below";
+          return;
+        }
+
+        argumentNumber--;
+        shouldRefetchArgumentValues = true;
+      }
+    }
+  };
 </script>
 
 <!-- Mod Menu is shown in bottom left - "Ooze Tools" - when tapped or clicked this opens a big menu  -->
@@ -167,12 +205,18 @@
 
             {#if commandBeingTyped.arguments}
               {#each commandBeingTyped.arguments as arg, i}
-                <CodexChip props={{
-                  icon: arg.icon ?? undefined,
-                  class: argumentNumber == i ? "active" : (
-                    argumentNumber > i ? "done" : ""
-                  ),
-                }} scrollIntoView={argumentNumber == i}>
+                <CodexChip
+                  props={{
+                    icon: arg.icon ?? undefined,
+                    class:
+                      argumentNumber == i
+                        ? "active"
+                        : argumentNumber > i
+                          ? "done"
+                          : "",
+                  }}
+                  scrollIntoView={argumentNumber == i}
+                >
                   {arg.name}
                 </CodexChip>
               {/each}
@@ -196,7 +240,8 @@
             "aria-label": "OOZE Command Pallet",
             class: "oozeCommandPallet",
             status: firstCommandNotFound ? "error" : "default",
-            }}
+            onkeydown: handleCommandInputKey,
+          }}
           bind:value={commandInputValue}
         />
         {#if firstCommandNotFound}
