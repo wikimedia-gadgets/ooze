@@ -22,6 +22,7 @@
   "dependencies": {
     "@wikimedia/codex": "^1.2.0",
     "@wikimedia/codex-design-tokens": "^1.2.0",
+    "types-mediawiki": "^1.4.0",
     "vue3-webcomponent-wrapper": "^0.2.0"
   }
 }

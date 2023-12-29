@@ -15,6 +15,7 @@
   import CodexMessage from "./vue/CodexMessage.svelte";
   import type { Command } from "./commands/Command";
   import CodexChip from "./vue/CodexChip.svelte";
+  import OozeUiWrapper from "./OozeUIWrapper.svelte";
 
   const oozeVer = APP_VERSION;
 
@@ -107,7 +108,7 @@
 </script>
 
 <!-- Mod Menu is shown in bottom left - "Ooze Tools" - when tapped or clicked this opens a big menu  -->
-<div class="oozeMenuContainer">
+<OozeUiWrapper>
   <CodexToggleButton
     props={{
       class: "oozeMenuButton",
@@ -217,4 +218,4 @@
       </div>
     </div>
   {/if}
-</div>
+</OozeUiWrapper>
