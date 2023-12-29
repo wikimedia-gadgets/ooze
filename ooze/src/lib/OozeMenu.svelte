@@ -210,6 +210,17 @@
             props={{
               weight: "quiet",
               "aria-label": "Open settings",
+              onclick: () => {
+                // If settings already open, close it
+                if (commandBeingTyped?.name === "Settings") {
+                  commandBeingTyped = undefined;
+                  argumentNumber = -1;
+                  return;
+                }
+
+                commandBeingTyped = Commands.settings;
+                argumentNumber = 0;
+              },
             }}
           >
             <CodexIcon icon={cdxIconSettings} />
