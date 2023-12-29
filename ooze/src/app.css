@@ -126,7 +126,8 @@
   justify-content: left;
   gap: 0.5rem;
   padding-left: 1rem;
-  padding-right: 1rem;
+  /* Additional right padding for scrolling */
+  padding-right: 3rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   overflow-x: hidden;

@@ -1,6 +1,10 @@
 import { CommandArgumentType, type Command } from "../Command";
 import {
     cdxIconUserAvatar,
+    cdxIconTemplateAdd,
+    cdxIconNotice,
+    cdxIconSpecialPages,
+    cdxIconSpeechBubbleAdd
   } from "@wikimedia/codex-icons";
 
 export const Commands: Record<string, Command> = {
@@ -43,7 +47,7 @@ export const Commands: Record<string, Command> = {
                 name: "Template",
                 description: "The warning template to use.",
                 type: CommandArgumentType.warningTemplate,
-                icon: cdxIconUserAvatar,
+                icon: cdxIconTemplateAdd,
                 placeholder: "Type to search, or select from the list...",
                 validate: () => true,
             },
@@ -53,7 +57,7 @@ export const Commands: Record<string, Command> = {
                 name: "Level",
                 description: "The level of the warning.",
                 type: CommandArgumentType.plainText,
-                icon: cdxIconUserAvatar,
+                icon: cdxIconNotice,
                 placeholder: "Type to search, or select from the list...",
                 validate: () => true,
             },
@@ -65,7 +69,7 @@ export const Commands: Record<string, Command> = {
                 type: CommandArgumentType.page,
                 validate: () => true,
                 optional: true,
-                icon: cdxIconUserAvatar,
+                icon: cdxIconSpecialPages,
                 placeholder: "Enter a page name...",
             },
 
@@ -76,7 +80,7 @@ export const Commands: Record<string, Command> = {
                 type: CommandArgumentType.plainText,
                 validate: () => true,
                 optional: true,
-                icon: cdxIconUserAvatar,
+                icon: cdxIconSpeechBubbleAdd,
                 placeholder: "Enter additional comments...",
             },
         ],

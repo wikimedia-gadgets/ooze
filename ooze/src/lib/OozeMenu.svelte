@@ -56,6 +56,11 @@
             console.log("Command not found!");
             firstCommandNotFound = true;
           }
+          break;
+        default:
+          argumentNumber++;
+          commandInputValue = "";
+          break;
       }
     }
   }
@@ -163,8 +168,10 @@
               {#each commandBeingTyped.arguments as arg, i}
                 <CodexChip props={{
                   icon: arg.icon ?? undefined,
-                  class: argumentNumber == i ? "active" : "",
-                }}>
+                  class: argumentNumber == i ? "active" : (
+                    argumentNumber > i ? "done" : ""
+                  ),
+                }} scrollIntoView={argumentNumber == i}>
                   {arg.name}
                 </CodexChip>
               {/each}
