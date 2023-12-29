@@ -129,8 +129,36 @@
   padding-right: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  overflow-x: hidden;
+  /* Nice fade out at end */
+  mask-image: linear-gradient(to right, black 90%, transparent);
+  mask-position: 100% 0%;
+  mask-size: 150% 200%;
+  transition: all 0.4s ease-in-out;
+
+  /* A very thin, minimal scroll bar (custom style) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--background-color-interactive) transparent;
+}
+
+/* This gives a nice slide out effect when hovering over the chips */
+.oozeMenuChips:hover {
+  overflow-x: auto;
+  mask-position: 0% 0%;
+}
+
+/* All chips, no cursor, no select */
+.oozeMenuChips * {
+  cursor: default;
+  user-select: none;
+  transition: all 0.2s ease-in-out;
 }
 
 .oozeMenuChips .done {
   background-color: var(--background-color-disabled-subtle);
+}
+
+.oozeMenuChips .active {
+  border-color: var(--background-color-progressive--focus);
+  border-width: 2px;
 }

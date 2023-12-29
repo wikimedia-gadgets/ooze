@@ -24,20 +24,38 @@
 
   let firstCommandNotFound = false;
 
+  let commandPalletInputIcon = cdxIconFunctionArgument;
+  let commandPalletPlaceholder = "Type a command, or use the buttons below";
+
+  // Argument number - used to handle input for commands and arguments. -1 means waiting for command
+  let argumentNumber = -1;
+
+  $: if (commandBeingTyped && commandBeingTyped.arguments) {
+    commandPalletInputIcon =
+      commandBeingTyped.arguments[argumentNumber].icon ??
+      cdxIconFunctionArgument;
+
+    commandPalletPlaceholder = commandBeingTyped.arguments[argumentNumber]
+      .placeholder ?? `Enter ${commandBeingTyped.arguments[argumentNumber].name}`;
+  }
+
   // On command input change
   $: if (commandInputValue !== "") {
     // If last character is a space and the command is found in the commands list, run the command
     const command = Commands[commandInputValue.trim()];
     if (commandInputValue[commandInputValue.length - 1] === " ") {
-      if (command) {
-        firstCommandNotFound = false;
-
-        firstCommandNotFound = false;
-        commandBeingTyped = command;
-        commandInputValue = "";
-      } else {
-        console.log("Command not found!");
-        firstCommandNotFound = true;
+      switch (argumentNumber) {
+        case -1:
+          // If argument number is -1, we are waiting for an argument
+          if (command) {
+            firstCommandNotFound = false;
+            commandBeingTyped = command;
+            commandInputValue = "";
+            argumentNumber = 0;
+          } else {
+            console.log("Command not found!");
+            firstCommandNotFound = true;
+          }
       }
     }
   }
@@ -142,8 +160,11 @@
             </CodexChip>
 
             {#if commandBeingTyped.arguments}
-              {#each commandBeingTyped.arguments as arg}
-                <CodexChip>
+              {#each commandBeingTyped.arguments as arg, i}
+                <CodexChip props={{
+                  icon: arg.icon ?? undefined,
+                  class: argumentNumber == i ? "active" : "",
+                }}>
                   {arg.name}
                 </CodexChip>
               {/each}
@@ -161,13 +182,13 @@
         <CodexTextInput
           bind:container={textInput}
           props={{
-            startIcon: cdxIconFunctionArgument,
-            placeholder: "Type a command, or use the buttons below",
+            startIcon: commandPalletInputIcon,
+            placeholder: commandPalletPlaceholder,
             size: "large",
             "aria-label": "OOZE Command Pallet",
             class: "oozeCommandPallet",
             status: firstCommandNotFound ? "error" : "default",
-          }}
+            }}
           bind:value={commandInputValue}
         />
         {#if firstCommandNotFound}
@@ -180,7 +201,7 @@
           </CodexMessage>
         {/if}
 
-        <!-- If there if a header component, render it -->
+        <!-- If there if a header component for this command, render it -->
         {#if commandBeingTyped?.headerComponent}
           <div class="oozeMenuCommandHeader">
             <svelte:component this={commandBeingTyped.headerComponent} />

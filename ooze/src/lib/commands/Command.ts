@@ -32,6 +32,9 @@ export interface CommandArgument {
     name: string;
     description: string;
     type: CommandArgumentType;
+    icon?: any; // This shows when typing in the argument
+    placeholder?: string; // This shows when typing in the argument
     validate: (arg: string) => boolean;
+    optional?: boolean;
 }
 

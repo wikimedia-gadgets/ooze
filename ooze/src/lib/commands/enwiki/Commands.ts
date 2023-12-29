@@ -1,5 +1,7 @@
 import { CommandArgumentType, type Command } from "../Command";
-import Warn from "./components/Warn.svelte";
+import {
+    cdxIconUserAvatar,
+  } from "@wikimedia/codex-icons";
 
 export const Commands: Record<string, Command> = {
     // Welcome
@@ -31,19 +33,53 @@ export const Commands: Record<string, Command> = {
         arguments: [
             {
                 name: "User",
-                description: "The user to warn.",
+                description: "The user to warn. If the talk page doesn't exist, it will be created.",
                 type: CommandArgumentType.user,
+                icon: cdxIconUserAvatar,
+                placeholder: "Enter a username...",
                 validate: () => true,
             },
             {
                 name: "Template",
                 description: "The warning template to use.",
                 type: CommandArgumentType.warningTemplate,
+                icon: cdxIconUserAvatar,
+                placeholder: "Type to search, or select from the list...",
                 validate: () => true,
             },
+
+            // Warning level
+            {
+                name: "Level",
+                description: "The level of the warning.",
+                type: CommandArgumentType.plainText,
+                icon: cdxIconUserAvatar,
+                placeholder: "Type to search, or select from the list...",
+                validate: () => true,
+            },
+
+            // Associated page
+            {
+                name: "Page",
+                description: "The page associated with the warning.",
+                type: CommandArgumentType.page,
+                validate: () => true,
+                optional: true,
+                icon: cdxIconUserAvatar,
+                placeholder: "Enter a page name...",
+            },
+
+            // Additional comments
+            {
+                name: "Comments",
+                description: "Additional comments to add to the warning.",
+                type: CommandArgumentType.plainText,
+                validate: () => true,
+                optional: true,
+                icon: cdxIconUserAvatar,
+                placeholder: "Enter additional comments...",
+            },
         ],
-        hasReason: true,
         validate: () => true,
-        headerComponent: Warn,
     },
 };
