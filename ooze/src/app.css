@@ -67,8 +67,10 @@
 }
 
 .oozeMenuTitle {
-  padding: 1rem;
-  font-weight: lighter;
+  padding-left: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: small;
 }
 
 /* Menu list */
@@ -120,6 +122,8 @@
 }
 
 .oozeMenuChips {
+  background-color: white;
+  margin-right: 0.25rem;
   display: flex;
   flex-direction: row;
   align-items: center;

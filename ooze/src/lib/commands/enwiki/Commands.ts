@@ -4,10 +4,52 @@ import {
     cdxIconTemplateAdd,
     cdxIconNotice,
     cdxIconSpecialPages,
-    cdxIconSpeechBubbleAdd
+    cdxIconSpeechBubbleAdd,
+    cdxIconSearch
   } from "@wikimedia/codex-icons";
+import SettingsUi from "./SettingsUI.svelte";
+import SqlWarning from "../settings/SqlWarning.svelte";
 
 export const Commands: Record<string, Command> = {
+    // Ooze settings
+    "settings": {
+        name: "Settings",
+        description: "Change OOZE settings.",
+        arguments: [
+            {
+                name: "Search",
+                description: "Search for a setting to change.",
+                placeholder: "Search...",
+                type: CommandArgumentType.plainText,
+                validate: () => true,
+                icon: cdxIconSearch,
+            },
+        ],
+        validate: () => true,
+        // Most of the settings can be done through the settings UI
+        // but some people may prefer to use the command line
+        headerComponent: SettingsUi,
+    },
+
+    // Ooze - communicate directly with the SQL database
+    "sql" : {
+        name: "Ooze SQL",
+        description: "Communicate directly with OOZE's internal SQL database.",
+        arguments: [
+            {
+                name: "Query",
+                description: "The SQL query to run.",
+                type: CommandArgumentType.plainText,
+                validate: () => true,
+                
+            },
+        ],
+        validate: () => true,
+        headerComponent: SqlWarning,
+    },
+
+
+    // Wiki
     // Welcome
     "we": {
         name: "Welcome",

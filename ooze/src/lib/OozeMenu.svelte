@@ -161,12 +161,53 @@
     <div class="cdx-card oozeMenu">
       <!-- Header/footer (at bottom, or on top on mobile) -->
       <div class="oozeMenuFooter">
-        <p class="oozeMenuTitle">ooze v{oozeVer}</p>
+        {#if commandBeingTyped}
+        <!-- Chips - show arguments. First one always has a command icon -->
+        <div class="oozeMenuChips">
+          <CodexChip
+            props={{
+              icon: cdxIconFunctionArgument,
+              class: "done",
+            }}
+          >
+            {commandBeingTyped.name}
+          </CodexChip>
+
+          {#if commandBeingTyped.arguments}
+            {#each commandBeingTyped.arguments as arg, i}
+              <CodexChip
+                props={{
+                  icon: arg.icon ?? undefined,
+                  class:
+                    argumentNumber == i
+                      ? "active"
+                      : argumentNumber > i
+                        ? "done"
+                        : "",
+                }}
+                scrollIntoView={argumentNumber == i}
+              >
+                {arg.name}
+              </CodexChip>
+            {/each}
+          {/if}
+
+          <!-- If reason is needed - show reason chip -->
+          {#if commandBeingTyped.hasReason}
+            <CodexChip>
+              {commandBeingTyped.reasonTitle ?? "Reason"}
+            </CodexChip>
+          {/if}
+        </div>
+      {:else}
+        <!-- Version when no chips to show -->
+        <p class="oozeMenuTitle">v{oozeVer}</p>
+      {/if}
+
         <div class="oozeButtons">
           <!-- Settings button -->
           <CodexButton
             props={{
-              size: "large",
               weight: "quiet",
               "aria-label": "Open settings",
             }}
@@ -176,7 +217,6 @@
           <!-- Close button -->
           <CodexButton
             props={{
-              size: "large",
               weight: "quiet",
               "aria-label": "Close menu",
               onclick: () => {
@@ -191,45 +231,6 @@
 
       <!-- Content -->
       <div class="oozeMenuContent">
-        {#if commandBeingTyped}
-          <!-- Chips - show arguments. First one always has a command icon -->
-          <div class="oozeMenuChips">
-            <CodexChip
-              props={{
-                icon: cdxIconFunctionArgument,
-                class: "done",
-              }}
-            >
-              {commandBeingTyped.name}
-            </CodexChip>
-
-            {#if commandBeingTyped.arguments}
-              {#each commandBeingTyped.arguments as arg, i}
-                <CodexChip
-                  props={{
-                    icon: arg.icon ?? undefined,
-                    class:
-                      argumentNumber == i
-                        ? "active"
-                        : argumentNumber > i
-                          ? "done"
-                          : "",
-                  }}
-                  scrollIntoView={argumentNumber == i}
-                >
-                  {arg.name}
-                </CodexChip>
-              {/each}
-            {/if}
-
-            <!-- If reason is needed - show reason chip -->
-            {#if commandBeingTyped.hasReason}
-              <CodexChip>
-                {commandBeingTyped.reasonTitle ?? "Reason"}
-              </CodexChip>
-            {/if}
-          </div>
-        {/if}
         <!-- At top - command pallet - focused when opened -->
         <CodexTextInput
           bind:container={textInput}
