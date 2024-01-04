@@ -59,16 +59,18 @@ export const Commands: Record<string, Command> = {
                 name: "User",
                 description: "The user to welcome.",
                 type: CommandArgumentType.user,
-                validate: () => true,
+                validate: v => {
+                    if (v === "") return "Please enter a username.";
+                    return true;
+                },
             },
             {
                 name: "Template",
                 description: "The welcome template to use.",
                 type: CommandArgumentType.welcomeTemplate,
-                validate: () => true,
+                validate: () => "Template not found.",
             },
         ],
-        hasReason: true,
         validate: () => true,
     },
 

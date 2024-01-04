@@ -13,9 +13,6 @@ export interface Command {
     description: string;
     helpPage?: string;
     arguments?: CommandArgument[];
-    hasReason?: boolean; // If the command has a reason/description at the end of arguments
-    reasonTitle?: string; // If the command has a reason/description at the end of arguments
-    reasonDescription?: string; // If the command has a reason/description at the end of arguments
     validate: (args: string[]) => boolean;
     headerComponent?: any;
 }
@@ -34,7 +31,7 @@ export interface CommandArgument {
     type: CommandArgumentType;
     icon?: any; // This shows when typing in the argument
     placeholder?: string; // This shows when typing in the argument
-    validate: (arg: string) => boolean;
+    validate: (arg: string) => string | true; // Return string if invalid, true if valid
     optional?: boolean;
 }
 
