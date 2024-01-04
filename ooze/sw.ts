@@ -1,1 +1,0 @@
-const welcomeMessage: string = `Welcome to Ooze!`;
