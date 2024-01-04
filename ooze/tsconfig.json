@@ -13,8 +13,8 @@
      */
     "allowJs": true,
     "checkJs": true,
-    "isolatedModules": true
+    "isolatedModules": true,
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "./node_modules/types-mediawiki"],
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "./node_modules/types-mediawiki", "sw.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
