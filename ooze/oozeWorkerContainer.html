@@ -1,0 +1,15 @@
+<!-- 
+    This page is added via an iframe to the main page.
+    It allows for cross-tab worker communication via the ServiceWorker which is bound to 
+    OOZE's origin, not the origin of the main page.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>OOZE</title>
+    </head>
+    <body>
+        <script type="module" src="/src/lib/worker/iframeEntry.ts"></script>
+    </body>
+</html>
