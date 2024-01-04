@@ -9,8 +9,12 @@ console.log(`OOZE ${oozeVer} worker iframe loaded.`);
 const worker = new oozeWorker();
 
 // Listen for messages from the worker
-worker.port.addEventListener("message", (event) => {
-    console.log(`Message from worker: ${event.data}`);
+// Send this worker message to the main page
+worker.port.addEventListener("message", e => {
+    parent.postMessage({
+        type: "oozeWorker",
+        data: e.data,
+    }, "*");
 });
 
 worker.onerror = (e) => {

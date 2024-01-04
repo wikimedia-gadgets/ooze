@@ -1,10 +1,30 @@
+const initTime = Date.now();
+interface SharedWorkerGlobalScope {
+    onconnect: (event: MessageEvent) => void;
+}
+
+const _self: SharedWorkerGlobalScope = self as any;
+
+const activePorts: MessagePort[] = [];
+
+// keep list of active ooze. we want to make our proxied requests ideally through the focused ooze client
+interface OozeClient {
+    id: string;
+    port?: MessagePort;
+    lastActive: number;
+}
+
+
 // When connection made, every 5 seconds send a message to all ports.
-addEventListener("connect", (event) => {
-    const port = event.ports[0];
-    console.log(port);
+_self.onconnect = e => {
+    const port = e.ports[0];
     port.start();
-    port.postMessage("Hello from the shared worker!");
+    activePorts.push(port);
+
+    // On disconnect, remove port from activePorts
+    port.addEventListener
+    port.postMessage("[oozeWorker] started");
     setInterval(() => {
-        port.postMessage("Hello from the shared worker!");
+        port.postMessage("[oozeWorker] was started at: " + initTime);
     }, 5000);
-});
+};

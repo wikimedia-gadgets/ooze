@@ -18,6 +18,14 @@ window.addEventListener('unhandledrejection', e => {
   })
 });
 
+// Add handler for when the #oozeFrame iframe posts a message
+window.addEventListener('message', e => {
+  if (e.data.type === 'oozeWorker') {
+    // Log to console
+    console.log(`Message from worker: ${e.data.data}`);
+  }
+});
+
 const app = new App({
   target: document.getElementById('ooze') as HTMLElement,
 });
