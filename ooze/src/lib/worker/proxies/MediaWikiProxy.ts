@@ -8,10 +8,12 @@ class MediaWikiProxy {
 
     }
 
-    // I tried some more complex typing here but it just got crazy
-    // Instead just do typeof mw.blah.blah when calling
-    // If T is a promise, the client will await the result before returning
-    public async mwp<T extends (...args: any[]) => any> (
+    // Use mwf to call a mw function and get the result. This runs asynchronously.
+    // The type you pass should be the type of the mw function you are calling.
+    // The first argument is an array of where the function is located in the mw object,
+    // for example mw.loader.load would be ["loader", "load"].
+    // The rest of the arguments are the arguments for the function, inferred from the type.
+    public async mwf<T extends (...args: any[]) => any> (
         commands: string[],
         ...args: T extends (...args: infer Params) => any ? Params : never
     ): Promise<UnwrapPromise<ReturnType<T>>> {
@@ -25,11 +27,26 @@ class MediaWikiProxy {
         // Return response - placeholder
         return {} as UnwrapPromise<ReturnType<T>>;
     }
+
+    // Use mwv to get the value of a mw variable. This runs asynchronously too.
+    // In many cases, it may be far more effective to just query the SQLite database directly.
+    // The type you pass should be the type of the mw variable you are getting.
+    // The only argument is an array of where the variable is located in the mw object,
+    // for example mw.config.value would be ["config", "value"].
+    public async mwv<T> (commands: string[]): Promise<T> {
+        // Send request to active client
+
+        // Run under mw
+
+        // Return response - placeholder
+        return {} as T;
+    }
+
 }
 
 // Example for mw.notify
 
 async () => {
     const mwThing = new MediaWikiProxy();
-    const x = await mwThing.mwp<typeof mw.notify>(["notify"], "Hello world");
+    const username = await mwThing.mwf<typeof mw.config.get>(["config", "get"], "wgUserName");
 };
