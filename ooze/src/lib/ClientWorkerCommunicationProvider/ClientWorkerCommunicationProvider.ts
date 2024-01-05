@@ -42,25 +42,24 @@ export default class ClientWorkerCommunicationProvider {
 
         if (e.data.data.taskID) {
             const { taskID, result, error } = e.data.data;
+            // Log to console
+            console.log(`Task ${taskID} from worker: ${result}`);
             if (error) {
                 this.pendingTasks[taskID].reject(error);
             } else {
                 this.pendingTasks[taskID].resolve(result);
             }
         }
-
-        // Log to console
-        console.log(`Message from worker: ${e.data.data}`);
     }
 
     // This is more than likely the most common way of communicating with the worker.
     // You can import *TYPES* from the worker into the client and use them here to preserve type safety.
     // The message will be sent to the worker, and the worker will send a response back.
     // The bridge identifier identifies the function to call in the worker.
-    public workerFunction<T extends (...args: any[]) => any> (bridgeIdentifier: string, ...args: Parameters<T>) : Promise<ReturnType<T>> { 
+    public workerFunction<T extends (...args: any[]) => any>(bridgeIdentifier: string, ...args: Parameters<T>): Promise<ReturnType<T>> {
         // Generate a task ID
         const taskID = crypto.randomUUID();
-        console.log(`Sending task ${taskID} for ${bridgeIdentifier} to worker.`); 
+        console.log(`Sending task ${taskID} for ${bridgeIdentifier} to worker.`);
         const promise = new Promise<ReturnType<T>>((resolve, reject) => {
             // Add to our pending tasks
             this.pendingTasks[taskID] = {
@@ -75,7 +74,7 @@ export default class ClientWorkerCommunicationProvider {
             bridgeIdentifier,
             args,
         });
-        
+
         return promise;
     }
 };

@@ -28,7 +28,6 @@ worker.port.start();
 
 window.addEventListener("message", e => {
     if (e.data.type === "oozeClient") {
-        console.log(e.data);
         worker.port.postMessage(e.data.data);
     }
 });
