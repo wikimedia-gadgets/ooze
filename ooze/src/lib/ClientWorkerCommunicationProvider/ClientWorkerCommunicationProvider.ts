@@ -42,8 +42,6 @@ export default class ClientWorkerCommunicationProvider {
 
         if (e.data.data.taskID) {
             const { taskID, result, error } = e.data.data;
-            // Log to console
-            console.log(`Task ${taskID} from worker: ${result}`);
             if (error) {
                 this.pendingTasks[taskID].reject(error);
             } else {
@@ -59,7 +57,6 @@ export default class ClientWorkerCommunicationProvider {
     public workerFunction<T extends (...args: any[]) => any>(bridgeIdentifier: string, ...args: Parameters<T>): Promise<ReturnType<T>> {
         // Generate a task ID
         const taskID = crypto.randomUUID();
-        console.log(`Sending task ${taskID} for ${bridgeIdentifier} to worker.`);
         const promise = new Promise<ReturnType<T>>((resolve, reject) => {
             // Add to our pending tasks
             this.pendingTasks[taskID] = {

@@ -1,6 +1,7 @@
 import './app.css'
 import App from './App.svelte'
 import ClientWorkerCommunicationProvider from './lib/ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider';
+import type Heartbeat from './lib/worker/functions/Heartbeat';
 
 // Add ooze to the DOM
 // Create ooze div
@@ -29,7 +30,11 @@ if (!oozeFrame) throw new Error('oozeFrame not found. Cannot continue.');
 
 const oozeCom = new ClientWorkerCommunicationProvider(oozeFrame);
 
-oozeCom.workerFunction<any>("ping", "pong please");
+// Every 250ms, send a heartbeat to the worker, so they know that we're still active
+setInterval(async () => {
+  const result = await oozeCom.workerFunction<typeof Heartbeat>('heartbeat');
+  if (!result) console.error("Heartbeat failed.");
+}, 250);
 
 
 

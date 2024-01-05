@@ -1,4 +1,5 @@
 import WorkerFunctionHandler from "./WorkerFunctionHandler";
+import Heartbeat from "./functions/Heartbeat";
 
 const initTime = Date.now();
 interface SharedWorkerGlobalScope {
@@ -10,14 +11,24 @@ const _self: SharedWorkerGlobalScope = self as any;
 // keep list of active ooze. we want to make our proxied requests ideally through the focused ooze client
 interface OozeClient {
     id: string;
-    port?: MessagePort;
     lastActive: number;
+    inFocus: boolean;
+}
+
+// Todo: Put this in database, so we can access clients from async threads
+// Here things can get out of sync
+const clients: Map<string, OozeClient> = new Map(); // key is client id
+
+export function getClients(): Map<string, OozeClient> {
+    return clients;
 }
 
 // Initialize the worker function handler
 const wfh = new WorkerFunctionHandler({
-    "ping": async (extraBody: string) => `pong ${extraBody}`,
+    "heartbeat": Heartbeat,
 });
+
+
 
 
 // When connection made, every 5 seconds send a message to all ports.
@@ -36,7 +47,19 @@ _self.onconnect = e => {
             return;
         }
 
-        // If the client is not in the list, add it (todo)
+        // If the client is not in the list, add it
+        if (!clients.has(clientId)) {
+            clients.set(clientId, {
+                id: clientId,
+                lastActive: Date.now(),
+                inFocus: false, // We don't assume the client is in focus, we wait for it to tell us.
+            });
+            console.log(`Connected clients: ${clients.size}`)
+        } else {
+            // Update the last active time
+            (clients.get(clientId) as OozeClient).lastActive = Date.now();
+        }
+
 
         // If data includes taskID and bridgeIdentifier, it's a request to a worker function
         // and should be handled accordingly
