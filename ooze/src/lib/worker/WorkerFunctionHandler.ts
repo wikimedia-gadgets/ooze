@@ -1,0 +1,1 @@
+// Handles incoming worker messages from the client

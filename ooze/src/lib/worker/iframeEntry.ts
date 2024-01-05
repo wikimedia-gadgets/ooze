@@ -3,7 +3,7 @@ import oozeWorker from "./oozeWorker?sharedworker";
 const oozeVer = APP_VERSION;
 
 // Entry for worker iframe
-console.log(`OOZE ${oozeVer} worker iframe loaded.`);
+console.log(`OOZEworker v${oozeVer} - copyright 2024 Ed Englefield`);
 
 // Create a new worker
 const worker = new oozeWorker();
