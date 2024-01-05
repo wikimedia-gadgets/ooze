@@ -48,5 +48,5 @@ class MediaWikiProxy {
 
 async () => {
     const mwThing = new MediaWikiProxy();
-    const username = await mwThing.mwf<typeof mw.config.get>(["config", "get"], "wgUserName");
+    const currentPage = await mwThing.mwf<typeof mw.config.get>(["config", "get"], "wgPageName");
 };

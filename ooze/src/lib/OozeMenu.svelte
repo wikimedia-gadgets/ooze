@@ -143,7 +143,6 @@
             commandInputValue = "";
             argumentNumber = 0;
           } else {
-            console.log("Command not found!");
             firstCommandNotFound = true;
           }
           break;

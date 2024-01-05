@@ -1,11 +1,15 @@
 import './app.css'
 import App from './App.svelte'
+import ClientWorkerCommunicationProvider from './lib/ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider';
 
 // Add ooze to the DOM
 // Create ooze div
 const ooze = document.createElement('div');
 ooze.id = 'ooze';
 document.body.appendChild(ooze);
+
+// Generate an ID for this ooze instance
+const oozeID = crypto.randomUUID();
 
 // As we pretty much do all our work in promises, we should catch any unhandled rejections
 window.addEventListener('unhandledrejection', e => {
@@ -19,12 +23,15 @@ window.addEventListener('unhandledrejection', e => {
 });
 
 // Add handler for when the #oozeFrame iframe posts a message
-window.addEventListener('message', e => {
-  if (e.data.type === 'oozeWorker') {
-    // Log to console
-    console.log(`Message from worker: ${e.data.data}`);
-  }
-});
+
+const oozeFrame = document.getElementById('oozeFrame') as HTMLIFrameElement;
+if (!oozeFrame) throw new Error('oozeFrame not found. Cannot continue.');
+
+const oozeCom = new ClientWorkerCommunicationProvider(oozeFrame);
+
+oozeCom.workerFunction<any>("ping", "pong please");
+
+
 
 const app = new App({
   target: document.getElementById('ooze') as HTMLElement,

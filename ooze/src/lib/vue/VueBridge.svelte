@@ -25,7 +25,7 @@
 
   // Create a reactive statement that depends on slotContentChangeTracker
   $: {
-    console.log(slotContainer?.innerHTML ?? "");
+    slotContainer?.innerHTML ?? "";
   }
 
   function renderFunc() {

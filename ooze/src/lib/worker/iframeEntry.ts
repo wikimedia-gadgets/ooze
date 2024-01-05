@@ -22,3 +22,13 @@ worker.onerror = (e) => {
 };
 
 worker.port.start();
+
+
+// When message received from main page with type "oozeClient", send it to the worker
+
+window.addEventListener("message", e => {
+    if (e.data.type === "oozeClient") {
+        console.log(e.data);
+        worker.port.postMessage(e.data.data);
+    }
+});
