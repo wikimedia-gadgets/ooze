@@ -1,5 +1,6 @@
 import WorkerFunctionHandler from "./WorkerFunctionHandler";
 import Heartbeat from "./functions/Heartbeat";
+import sqlite3InitModule from '@sqlite.org/sqlite-wasm';
 
 const initTime = Date.now();
 interface SharedWorkerGlobalScope {
@@ -19,15 +20,37 @@ interface OozeClient {
 // Here things can get out of sync
 const clients: Map<string, OozeClient> = new Map(); // key is client id
 
-export function getClients(): Map<string, OozeClient> {
-    return clients;
-}
-
 // Initialize the worker function handler
 const wfh = new WorkerFunctionHandler({
     "heartbeat": Heartbeat,
 });
 
+// Initialize sqlite3
+async function initSqlite3() {
+    let db: any;
+
+    // Initialize sqlite3 wasm module
+    const sqlite3 = await sqlite3InitModule({
+        print: console.log,
+        printErr: console.error,
+    });
+
+    // Create a new database. If opfs is not available an in-memory database will be created
+    // if this happens, we need to warn the user that their data will not be saved
+
+    try {
+        const poolUtil = await sqlite3.installOpfsSAHPoolVfs({});
+        db = new poolUtil.OpfsSAHPoolDb('/ooze');
+        console.log('OPFS is available, created persisted database at', db.filename);
+    } catch (error) {
+        // Todo, send message to client to warn database load failed
+        console.error('OPFS is not available.', error);
+    }
+
+};
+
+// Initialize sqlite3
+initSqlite3();
 
 
 

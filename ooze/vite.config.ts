@@ -18,5 +18,9 @@ export default defineConfig({
         format: 'iife',
       },
     },
-  }
+  },
+
+  optimizeDeps: {
+    exclude: ['@sqlite.org/sqlite-wasm'],
+  },
 })
