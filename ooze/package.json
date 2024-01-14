@@ -21,7 +21,6 @@
     "vite-plugin-mkcert": "^1.17.1"
   },
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "^3.44.2-build1",
     "@wikimedia/codex": "^1.2.0",
     "@wikimedia/codex-design-tokens": "^1.2.0",
     "types-mediawiki": "^1.4.0",
