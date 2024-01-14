@@ -1,5 +1,6 @@
 import WorkerFunctionHandler from "./WorkerFunctionHandler";
 import Heartbeat from "./functions/Heartbeat";
+import JsStore from "jsstore";
 
 const initTime = Date.now();
 interface SharedWorkerGlobalScope {
@@ -27,7 +28,7 @@ const wfh = new WorkerFunctionHandler({
 // Initialize DB
 async function initDB() {
     // Todo: use jsstore instead of sqlite https://jsstore.net/docs/insert/
-
+    const connection = new JsStore.Connection();
 };
 
 // Initialize DB
