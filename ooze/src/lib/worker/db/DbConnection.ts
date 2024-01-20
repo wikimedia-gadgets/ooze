@@ -1,18 +1,19 @@
 import { Connection } from "jsstore";
+import jsStoreWorker from 'jsstore/dist/jsstore.worker.min.js?worker';
 import dbConfigurationSchema from "./schema/Configuration";
 import dbPageVisitHistorySchema from "./schema/PageVisitHistory";
 import dbUserActionHistorySchema from "./schema/UserActionHistory";
 import dbUserCacheSchema from "./schema/UserCache";
-import workerInjector from "jsstore/dist/worker_injector";
 
 export default class OozeDb {
     static connection: Connection | null = null;
 
     // Create the global connection
     public async setGlobalConnection() {
-        OozeDb.connection = new Connection();
-        OozeDb.connection.addPlugin(workerInjector);
+        OozeDb.connection = new Connection(new jsStoreWorker());
+        OozeDb.connection.logStatus = true;
 
+        console.log("[OozeDb] Initializing database");
         try {
             await OozeDb.connection.initDb({
                 name: "OozeDB",
@@ -26,5 +27,6 @@ export default class OozeDb {
         } catch (error) {
             console.error("Failed to initialize database", error);
         }
+        console.log("[OozeDb] Database initialized");
     }
 }

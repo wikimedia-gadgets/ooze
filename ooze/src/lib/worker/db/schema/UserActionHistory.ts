@@ -17,7 +17,6 @@ const dbUserActionHistorySchema: ITable = {
         timestamp: {
             notNull: true,
             dataType: 'number', // the typing on this is useless
-            default: () => Date.now(),
         },
         // The action taken - warn, block, etc.
         action: {

@@ -30,7 +30,6 @@ const dbUserCacheSchema: ITable = {
         lastUpdated: {
             notNull: true,
             dataType: 'number', // the typing on this is useless
-            default: () => Date.now(),
         },
         // Highest warning level
         highestWarningLevel: {
