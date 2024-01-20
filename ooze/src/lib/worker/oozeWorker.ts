@@ -1,8 +1,9 @@
 import WorkerFunctionHandler from "./WorkerFunctionHandler";
+import OozeDb from "./db/DbConnection";
 import Heartbeat from "./functions/Heartbeat";
-import JsStore from "jsstore";
 
-const initTime = Date.now();
+console.log("Ooze worker loaded");
+
 interface SharedWorkerGlobalScope {
     onconnect: (event: MessageEvent) => void;
 }
@@ -25,16 +26,15 @@ const wfh = new WorkerFunctionHandler({
     "heartbeat": Heartbeat,
 });
 
-// Initialize DB
-async function initDB() {
-    // Todo: use jsstore instead of sqlite https://jsstore.net/docs/insert/
-    const connection = new JsStore.Connection();
-};
-
-// Initialize DB
-initDB();
-
-
+(async () => {
+    try {
+        // Initialize DB
+        await (new OozeDb()).setGlobalConnection();
+    } catch (error) {
+        // Failed to initialize DB
+        console.error("Failed to initialize DB", error);
+    }
+})();
 
 // When connection made, every 5 seconds send a message to all ports.
 _self.onconnect = e => {

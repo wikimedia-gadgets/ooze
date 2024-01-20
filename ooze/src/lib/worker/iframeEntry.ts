@@ -18,7 +18,8 @@ worker.port.addEventListener("message", e => {
 });
 
 worker.onerror = (e) => {
-    console.error(`Error from worker: ${e}`);
+    console.error(`Error from worker`);
+    console.error(e);
 };
 
 worker.port.start();
