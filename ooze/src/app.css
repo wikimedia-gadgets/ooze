@@ -9,7 +9,7 @@
   z-index: 1000;
   display: flex;
   /* Ensure the open/close button always remains at the bottom */
-  flex-direction: column-reverse; 
+  flex-direction: column-reverse;
   gap: 1rem;
   align-items: flex-start;
   justify-content: center;
@@ -166,4 +166,25 @@
 .oozeMenuChips .active {
   border-color: var(--background-color-progressive--focus);
   border-width: 2px;
+}
+
+.oozeShortCutHint {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.oozeShortCutHint * {
+  font-size: small;
+  font-family: monospace;
+}
+
+.oozeShortCutDescription {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.oozeShortCutDesc {
+  font-weight: bold;
 }

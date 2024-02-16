@@ -9,6 +9,7 @@ import {
   } from "@wikimedia/codex-icons";
 import SettingsUi from "./SettingsUI.svelte";
 import SqlWarning from "../settings/SqlWarning.svelte";
+import UserSearchIntel from "./intelligence/UserSearchIntel.svelte";
 
 export const Commands: Record<string, Command> = {
     // Ooze settings
@@ -29,23 +30,6 @@ export const Commands: Record<string, Command> = {
         // Most of the settings can be done through the settings UI
         // but some people may prefer to use the command line
         headerComponent: SettingsUi,
-    },
-
-    // Ooze - communicate directly with the SQL database
-    "sql" : {
-        name: "Ooze SQL",
-        description: "Communicate directly with OOZE's internal SQL database.",
-        arguments: [
-            {
-                name: "Query",
-                description: "The SQL query to run.",
-                type: CommandArgumentType.plainText,
-                validate: () => true,
-                
-            },
-        ],
-        validate: () => true,
-        headerComponent: SqlWarning,
     },
 
 
@@ -85,7 +69,12 @@ export const Commands: Record<string, Command> = {
                 type: CommandArgumentType.user,
                 icon: cdxIconUserAvatar,
                 placeholder: "Enter a username...",
-                validate: () => true,
+                validate: v => {
+                    if (v === "") return "Please enter a username.";
+                    return true;
+                },
+
+                helperElement: UserSearchIntel,
             },
             {
                 name: "Template",

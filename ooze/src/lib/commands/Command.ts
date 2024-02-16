@@ -32,6 +32,7 @@ export interface CommandArgument {
     icon?: any; // This shows when typing in the argument
     placeholder?: string; // This shows when typing in the argument
     validate: (arg: string) => string | true; // Return string if invalid, true if valid
+    helperElement?: any; // This shows when the argument is selected - used for shortcuts etc
     optional?: boolean;
 }
 

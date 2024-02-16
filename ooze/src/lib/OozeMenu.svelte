@@ -148,12 +148,11 @@
           break;
         default:
           // Move on - before doing so, ensure the argument is valid
-          if (
-            commandBeingTyped?.arguments
-          ) {
-            const validation = commandBeingTyped.arguments[
-              argumentNumber
-            ].validate(commandInputValue);
+          if (commandBeingTyped?.arguments) {
+            const validation =
+              commandBeingTyped.arguments[argumentNumber].validate(
+                commandInputValue
+              );
 
             // Validation error? Set the error and return
             if (validation !== true) {
@@ -174,6 +173,10 @@
       }
     }
   };
+
+  function helperOverrideInputValue(e: CustomEvent<string>) {
+    commandInputValue = e.detail;
+  }
 </script>
 
 <!-- Mod Menu is shown in bottom left - "Ooze Tools" - when tapped or clicked this opens a big menu  -->
@@ -216,11 +219,17 @@
                         : argumentNumber > i
                           ? "done"
                           : "",
-                    status: argumentNumber == i && currentArgumentValidationError !== "" ? "error" : undefined,
+                    status:
+                      argumentNumber == i &&
+                      currentArgumentValidationError !== ""
+                        ? "error"
+                        : undefined,
                   }}
                   scrollIntoView={argumentNumber == i}
                 >
-                  {currentArgumentValidationError !== "" && argumentNumber == i ? currentArgumentValidationError : arg.name}
+                  {currentArgumentValidationError !== "" && argumentNumber == i
+                    ? currentArgumentValidationError
+                    : arg.name}
                 </CodexChip>
               {/each}
             {/if}
@@ -268,6 +277,17 @@
 
       <!-- Content -->
       <div class="oozeMenuContent">
+        <!-- If there is a helper component for this argument, render it -->
+        {#if commandBeingTyped?.arguments && commandBeingTyped.arguments[argumentNumber]?.helperElement}
+          <div class="oozeMenuCommandHelper">
+            <svelte:component
+              this={commandBeingTyped.arguments[argumentNumber].helperElement}
+              bind:commandInputValue
+              on:overrideInputValue={helperOverrideInputValue}
+            />
+          </div>
+        {/if}
+
         <!-- At top - command pallet - focused when opened -->
         <CodexTextInput
           bind:container={textInput}
