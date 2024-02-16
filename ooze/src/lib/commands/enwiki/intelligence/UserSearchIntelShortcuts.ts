@@ -58,7 +58,7 @@ const UserSearchIntelShortcuts: Record<string, UserSearchIntelShortcut> = {
 
     'u': {
         shortcut: '.u',
-        description: 'Last userpage I visited (talk or not)',
+        description: 'Last user page',
     }
 };
 
