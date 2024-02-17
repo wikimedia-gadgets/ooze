@@ -31,10 +31,10 @@ if (!oozeFrame) throw new Error('oozeFrame not found. Cannot continue.');
 const oozeCom = new ClientWorkerCommunicationProvider(oozeFrame);
 
 // Every 250ms, send a heartbeat to the worker, so they know that we're still active
-setInterval(async () => {
-  const result = await oozeCom.workerFunction<typeof Heartbeat>('heartbeat');
-  if (!result) console.error("Heartbeat failed.");
-}, 250);
+// setInterval(async () => {
+//   const result = await oozeCom.workerFunction<typeof Heartbeat>('heartbeat');
+//   if (!result) console.error("Heartbeat failed.");
+// }, 250);
 
 
 

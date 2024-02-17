@@ -204,3 +204,7 @@
   /* Infinite loop animation */
   animation: loadFadeIn 0.5s infinite linear alternate;
 }
+
+.oozeShortCutHintError {
+  color: red;
+}

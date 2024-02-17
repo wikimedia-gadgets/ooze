@@ -1,6 +1,7 @@
 import WorkerFunctionHandler from "./WorkerFunctionHandler";
 import OozeDb from "./db/DbConnection";
 import Heartbeat from "./functions/Heartbeat";
+import LastEditorsOnPage from "./functions/enwiki/LastEditorsOnPage";
 
 console.log("Ooze worker loaded");
 
@@ -24,6 +25,7 @@ const clients: Map<string, OozeClient> = new Map(); // key is client id
 // Initialize the worker function handler
 const wfh = new WorkerFunctionHandler({
     "heartbeat": Heartbeat,
+    "enwikiLastEditorsOnPage": LastEditorsOnPage,
 });
 
 (async () => {

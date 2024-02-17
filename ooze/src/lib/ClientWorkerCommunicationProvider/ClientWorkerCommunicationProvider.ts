@@ -11,6 +11,9 @@ export default class ClientWorkerCommunicationProvider {
         reject: (reason?: any) => void,
     }> = {};
 
+    // The current instance of the client worker communication provider
+    static _: ClientWorkerCommunicationProvider;
+
     // Constructor must take the iframe element
     constructor(iframe: HTMLIFrameElement) {
         this.oozeFrame = iframe;
@@ -21,6 +24,8 @@ export default class ClientWorkerCommunicationProvider {
 
         // Add handler for when the #oozeFrame iframe posts a message
         window.addEventListener('message', this.handleWorkerMessage.bind(this));
+
+        ClientWorkerCommunicationProvider._ = this;
     }
 
     public sendToWorker(data: any) {

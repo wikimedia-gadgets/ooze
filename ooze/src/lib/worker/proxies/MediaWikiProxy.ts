@@ -19,7 +19,7 @@ class MediaWikiProxy {
     ): Promise<UnwrapPromise<ReturnType<T>>> {
         // Send request to active client
 
-        // Run under mw
+        // Todo: Run under mw
 
 
 
@@ -36,7 +36,7 @@ class MediaWikiProxy {
     public async mwv<T> (commands: string[]): Promise<T> {
         // Send request to active client
 
-        // Run under mw
+        // Todo: Run under mw
 
         // Return response - placeholder
         return {} as T;
