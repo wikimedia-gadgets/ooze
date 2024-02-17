@@ -1,11 +1,17 @@
 // The MediaWiki proxy provides a near enough standard mw object, but allows it to be used in a worker.
 // We send the request to the active client, then the client sends the response to the worker.
 
+import ClientStore from "../ClientStore";
+
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 
-class MediaWikiProxy {
-    constructor() {
+export default class MediaWikiProxy {
+    static _: MediaWikiProxy;
 
+    private waitingTasks: Record<string, (data: any) => void> = {};
+
+    constructor() {
+        MediaWikiProxy._ = this;
     }
 
     // Use mwf to call a mw function and get the result. This runs asynchronously.
@@ -21,8 +27,27 @@ class MediaWikiProxy {
 
         // Todo: Run under mw
 
+        // Get the optimal client ID
+        const clientID = await ClientStore._?.getOptimalClientID();
 
+        // Generate a task ID
+        const taskID = crypto.randomUUID();
+        const promise = new Promise<any>((resolve, reject) => {
+            // Add to our waiting tasks
+            this.waitingTasks[taskID] = resolve;
+        });
 
+        // Send to client
+        ClientStore._?.sendMessageToClient(clientID, {
+            mwFunction: commands,
+            mwArgs: args,
+            workerTaskID: taskID,
+        });
+
+        // Wait for client response
+        const data = await promise;
+
+        console.log(data);
 
         // Return response - placeholder
         return {} as UnwrapPromise<ReturnType<T>>;
@@ -42,11 +67,12 @@ class MediaWikiProxy {
         return {} as T;
     }
 
+    // Handle response from client
+    public handleResponse (response: any) {
+        // If the response has a workerTaskID and it's in our waiting tasks, resolve it
+        if (response.workerTaskID && Object.keys(this.waitingTasks).includes(response.workerTaskID)) {
+            // This is Promise.resolve
+            this.waitingTasks[response.workerTaskID](response);
+        }
+    }
 }
-
-// Example for mw.notify
-
-async () => {
-    const mwThing = new MediaWikiProxy();
-    const currentPage = await mwThing.mwf<typeof mw.config.get>(["config", "get"], "wgPageName");
-};

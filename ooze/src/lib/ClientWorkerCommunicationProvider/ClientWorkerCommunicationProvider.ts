@@ -41,6 +41,10 @@ export default class ClientWorkerCommunicationProvider {
         }, '*');
     }
 
+    // Incoming message from the worker
+    // This could be a response to a task we sent to the worker, or it could be a message from the worker
+    // for example - the worker might want us to run a mw function
+
     private handleWorkerMessage(e: MessageEvent) {
         if (e.data.type !== 'oozeWorker') return;
         if (e.data.data.clientId !== this.oozeID) return;
@@ -52,6 +56,43 @@ export default class ClientWorkerCommunicationProvider {
             } else {
                 this.pendingTasks[taskID].resolve(result);
             }
+
+            return;
+        }
+
+        // MediaWiki function request
+        // Worker must also send a taskID
+        if (e.data.data.mwFunction && e.data.data.workerTaskID) {
+            // See MediaWikiProxy.ts in the worker - mwFunction is a string array like ["config", "get"]
+            // mwArgs is the arguments for the function
+            const mwFunction: string[] = e.data.data.mwFunction;
+            const mwArgs: any[] = e.data.data.mwArgs;
+
+            // Run the function in mw
+            // @ts-ignore
+            const functionToRun = mwFunction.reduce((obj, key) => obj[key], mw) as (...args: any[]) => any;
+
+            const result = functionToRun(...mwArgs);
+
+            // If the result has a "then" property, it's a promise, and we should await it
+            if (result?.then) {
+                result.then((resolved: any) => {
+                    this.sendToWorker({
+                        taskID: e.data.data.workerTaskID,
+                        result: resolved,
+                    });
+                });
+
+                // Todo: Handle rejections
+                
+                return;
+            }
+
+            this.sendToWorker({
+                taskID: e.data.data.workerTaskID,
+                result,
+            });
+
         }
     }
 

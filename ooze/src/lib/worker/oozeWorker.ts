@@ -1,7 +1,9 @@
+import ClientStore from "./ClientStore";
 import WorkerFunctionHandler from "./WorkerFunctionHandler";
 import OozeDb from "./db/DbConnection";
 import Heartbeat from "./functions/Heartbeat";
 import LastEditorsOnPage from "./functions/enwiki/LastEditorsOnPage";
+import MediaWikiProxy from "./proxies/MediaWikiProxy";
 
 console.log("Ooze worker loaded");
 
@@ -12,15 +14,10 @@ interface SharedWorkerGlobalScope {
 const _self: SharedWorkerGlobalScope = self as any;
 
 // keep list of active ooze. we want to make our proxied requests ideally through the focused ooze client
-interface OozeClient {
-    id: string;
-    lastActive: number;
-    inFocus: boolean;
-}
+new ClientStore();
 
-// Todo: Put this in database, so we can access clients from async threads
-// Here things can get out of sync
-const clients: Map<string, OozeClient> = new Map(); // key is client id
+// Create our MediaWiki proxy. We can refer to this using the _ property
+new MediaWikiProxy();
 
 // Initialize the worker function handler
 const wfh = new WorkerFunctionHandler({
@@ -55,17 +52,7 @@ _self.onconnect = e => {
         }
 
         // If the client is not in the list, add it
-        if (!clients.has(clientId)) {
-            clients.set(clientId, {
-                id: clientId,
-                lastActive: Date.now(),
-                inFocus: false, // We don't assume the client is in focus, we wait for it to tell us.
-            });
-            console.log(`Connected clients: ${clients.size}`)
-        } else {
-            // Update the last active time
-            (clients.get(clientId) as OozeClient).lastActive = Date.now();
-        }
+        ClientStore._?.registerClient(clientId, port);
 
 
         // If data includes taskID and bridgeIdentifier, it's a request to a worker function
@@ -78,6 +65,12 @@ _self.onconnect = e => {
                 clientId,
             });
             return;
+        }
+
+        // If data includes a "workerTaskID" and "mwFunction", it's a result of a MediaWiki function,
+        // and should be passed back to the MediaWikiProxy
+        if (data.workerTaskID && data.mwFunction) {
+            MediaWikiProxy._?.handleResponse(data);
         }
     });
 };
