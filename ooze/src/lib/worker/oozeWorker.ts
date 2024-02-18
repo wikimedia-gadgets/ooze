@@ -3,6 +3,7 @@ import WorkerFunctionHandler from "./WorkerFunctionHandler";
 import OozeDb from "./db/DbConnection";
 import Heartbeat from "./functions/Heartbeat";
 import LastEditorsOnPage from "./functions/enwiki/LastEditorsOnPage";
+import ClientFetch from "./proxies/ClientFetch";
 import MediaWikiProxy from "./proxies/MediaWikiProxy";
 
 console.log("Ooze worker loaded");
@@ -18,6 +19,9 @@ new ClientStore();
 
 // Create our MediaWiki proxy. We can refer to this using the _ property
 new MediaWikiProxy();
+
+// Create our ClientFetch proxy. We can refer to this using the _ property
+new ClientFetch();
 
 // Initialize the worker function handler
 const wfh = new WorkerFunctionHandler({
@@ -71,6 +75,14 @@ _self.onconnect = e => {
         // and should be passed back to the MediaWikiProxy
         if (data.workerTaskID && data.mwFunction) {
             MediaWikiProxy._?.handleResponse(data);
+            return;
+        }
+
+        // If data includes a "workerTaskID" and "clientFetchJsonResult", it's a result of a fetch request,
+        // and should be passed back to the ClientFetch Proxy
+        if (data.workerTaskID && data.clientFetchJsonResult) {
+            console.log("Handling client fetch response", data);
+            ClientFetch._?.handleResponse(data);
             return;
         }
 

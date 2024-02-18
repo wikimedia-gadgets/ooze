@@ -2,8 +2,10 @@
 
 import type { ApiQueryRevisionsParams } from "types-mediawiki/api_params";
 import MediaWikiProxy from "../../proxies/MediaWikiProxy";
+import ClientFetch from "../../proxies/ClientFetch";
 
 export default async function LastEditorsOnPage(page: string, limit: number = 10, userFilter?: string): Promise<string[]> {
+
     // Limit to 10
     if (limit > 10) {
         throw new Error("Limit cannot be more than 10");
@@ -26,13 +28,17 @@ export default async function LastEditorsOnPage(page: string, limit: number = 10
     // Convert the params to a query string
     const queryString = new URLSearchParams(params as any).toString();
 
+    console.log(queryString);
+
     // Fetch the data
-    const data = await fetch(`https://en.wikipedia.org/w/api.php?${queryString}`);
-    const json = await data.json();
+    const json = await ClientFetch._.cFetchJson(`https://en.wikipedia.org/w/api.php?${queryString}`);
+    console.log(json);
 
     // Get the revisions
     const revisions = json.query.pages[Object.keys(json.query.pages)[0]].revisions;
-    console.log(revisions);
+    
+    // Revisions is now an array that we can map over to get the users
+    const users = revisions.map((rev: { user: string }) => rev.user);
 
-    return [currentPage];
+    return [users];
 }

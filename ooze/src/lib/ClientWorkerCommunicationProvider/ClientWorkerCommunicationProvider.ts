@@ -45,7 +45,8 @@ export default class ClientWorkerCommunicationProvider {
     // This could be a response to a task we sent to the worker, or it could be a message from the worker
     // for example - the worker might want us to run a mw function
 
-    private handleWorkerMessage(e: MessageEvent) {
+    private async handleWorkerMessage(e: MessageEvent) {
+        // Todo: Take these out into their own files
         if (e.data.type !== 'oozeWorker') return;
         if (e.data.data.clientId !== this.oozeID) return;
 
@@ -107,6 +108,30 @@ export default class ClientWorkerCommunicationProvider {
                 result,
             });
 
+            return;
+        }
+
+        // Client fetch request
+        if (e.data.data.clientFetchJsonUrl && e.data.data.workerTaskID) {
+            console.log('Client fetch request', e.data.data.clientFetchJsonUrl, e.data.data.clientFetchJsonOptions);
+            // Fetch the data
+            const fetchR = await fetch(e.data.data.clientFetchJsonUrl, e.data.data.clientFetchJsonOptions);
+            if (!fetchR.ok) {
+                // Todo: handle this better
+                this.sendToWorker({
+                    workerTaskID: e.data.data.workerTaskID,
+                    error: 'Failed to fetch data',
+                });
+
+                return;
+            }
+
+            const json = await fetchR.json();
+
+            this.sendToWorker({
+                workerTaskID: e.data.data.workerTaskID,
+                clientFetchJsonResult: json,
+            });
             return;
         }
 
