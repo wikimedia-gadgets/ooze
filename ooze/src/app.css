@@ -172,6 +172,7 @@
   display: flex;
   gap: 0.5rem;
   padding: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .oozeShortCutHint * {
@@ -207,4 +208,37 @@
 
 .oozeShortCutHintError {
   color: red;
+}
+
+.oozeShortCutHelper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.oozeUserFilterCreatorTip {
+  font-size: x-small;
+}
+
+.oozeUserFilterCreatorItem, .oozeUserFilterCreatorItem * {
+  font-size: small;
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  align-items: center;
+}
+
+.oozeUserFilterCreatorFilter {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+  align-items: center;
+}
+
+.oozeUserFilterCreatorGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  font-size: small;
 }

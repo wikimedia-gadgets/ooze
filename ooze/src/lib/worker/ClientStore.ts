@@ -27,9 +27,6 @@ export default class ClientStore {
                 this.clients.delete(id);
             }
         }
-
-        // Log the number of clients
-        console.log(`Number of clients: ${this.clients.size}`);
     }
 
     public registerClient(clientId: string, port: MessagePort) {

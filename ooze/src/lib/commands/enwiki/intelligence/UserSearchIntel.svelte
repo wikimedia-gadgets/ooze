@@ -11,6 +11,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import type { UserSearchIntelShortcut } from "./UserSearchIntelShortcuts";
   import UserSearchIntelShortcuts from "./UserSearchIntelShortcuts";
   import ClientWorkerCommunicationProvider from "../../../ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider";
+  import UserFilterCreator from "./UserFilterCreator.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -22,9 +23,24 @@ If on a userpage: .u - the last userpage visited will be this one
   let isLoadingResultOfShortcut = false;
   let shortCutResultError: string | null = null;
 
+  // To render to help with parameters, i.e. creating user filters
+  let helperComponent: any = null;
+
   // If commandInputValue = ".me", then replace with current user
-  async function update() {
-    switch (commandInputValue.split(" ")[0]) {
+
+  // Throttle - only update 400ms after last keypress
+  let shortCutTimeout: NodeJS.Timeout | null = null;
+
+  $: update = async () => {
+    const split = commandInputValue.split(" ");
+    switch (split[0]) {
+      case ".sb":
+        // Sandbox for User Warnings
+        shortCutBeingTyped = UserSearchIntelShortcuts.sb;
+        shortCutReplacement = "Sandbox for User Warnings";
+        isLoadingResultOfShortcut = false;
+        dispatch("overrideInputValue", shortCutReplacement);
+        break;
       case ".me":
         shortCutBeingTyped = UserSearchIntelShortcuts.me;
         // Unlikely to be null, but if it is, use empty string
@@ -33,6 +49,7 @@ If on a userpage: .u - the last userpage visited will be this one
         // This won't be immediately shown but the change is made
         shortCutReplacement = mw.config.get("wgUserName") ?? "";
         dispatch("overrideInputValue", shortCutReplacement);
+        isLoadingResultOfShortcut = false;
         break;
       case ".u":
         shortCutBeingTyped = UserSearchIntelShortcuts.u;
@@ -42,22 +59,54 @@ If on a userpage: .u - the last userpage visited will be this one
         shortCutBeingTyped = UserSearchIntelShortcuts.e;
         isLoadingResultOfShortcut = true;
 
-        const userResults = await ClientWorkerCommunicationProvider._.workerFunction<
-          typeof LastEditorsOnPage
-        >(
-          "enwikiLastEditorsOnPage",
-          mw.config.get("wgPageName"),
-          1 // We only need the latest editor for this
-        );
+        let pageName = mw.config.get("wgPageName");
 
-        if (userResults.length === 0) {
-          shortCutResultError = "Page inaccessible";
+        if (split.length > 1) {
+          // Page name is provided
+          shortCutBeingTyped = UserSearchIntelShortcuts["e-p1"];
+          pageName = split[1]; // Use _ instead of space
+
+          if (pageName.length === 0) {
+            // Default this page if no page is provided
+            pageName = mw.config.get("wgPageName");
+          }
+        }
+
+        // User filters
+        if (split.length == 3) {
+          shortCutBeingTyped = UserSearchIntelShortcuts["e-p2"];
+          helperComponent = UserFilterCreator;
+          shortCutResultError = "Invalid user filter";
+          isLoadingResultOfShortcut = false;
+          return;
+        } else {
+          helperComponent = null;
+        }
+
+        if (split.length > 3) {
+          shortCutResultError = "Too many arguments";
           isLoadingResultOfShortcut = false;
           return;
         }
 
-        console.log(userResults);
+        const userResults =
+          await ClientWorkerCommunicationProvider._.workerFunction<
+            typeof LastEditorsOnPage
+          >(
+            "enwikiLastEditorsOnPage",
+            pageName,
+            1 // We only need the latest editor for this
+          );
 
+        if (userResults.length === 0) {
+          shortCutResultError = "Page inaccessible";
+          isLoadingResultOfShortcut = false;
+
+          console.warn("No results for page", pageName);
+          return;
+        }
+
+        shortCutResultError = null;
         isLoadingResultOfShortcut = false;
         shortCutReplacement = userResults[0];
         dispatch("overrideInputValue", shortCutReplacement);
@@ -67,14 +116,22 @@ If on a userpage: .u - the last userpage visited will be this one
         shortCutBeingTyped = null;
         shortCutReplacement = null;
         shortCutResultError = null;
-        isLoadingResultOfShortcut = false;
+        helperComponent = null;
 
+        isLoadingResultOfShortcut = false;
         // Remove any queued overrides
         dispatch("resetInputValue");
     }
-  }
+  };
 
-  $: if (commandInputValue) update();
+  $: if (commandInputValue.length !== -1) {
+    isLoadingResultOfShortcut = true;
+    // Throttle - only update 400ms after last keypress
+    if (shortCutTimeout) {
+      clearTimeout(shortCutTimeout);
+    }
+    shortCutTimeout = setTimeout(() => update(), 350);
+  }
 </script>
 
 {#if shortCutBeingTyped}
@@ -89,4 +146,10 @@ If on a userpage: .u - the last userpage visited will be this one
       <span class="oozeShortCutHintPrefix">{shortCutReplacement}</span>
     {/if}
   </div>
+
+  {#if helperComponent}
+    <div class="oozeShortCutHelper">
+      <svelte:component this={helperComponent} />
+    </div>
+  {/if}
 {/if}

@@ -16,6 +16,11 @@ export interface UserSearchIntelShortcut {
 }
 
 const UserSearchIntelShortcuts: Record<string, UserSearchIntelShortcut> = {
+    'sb': {
+        shortcut: '.sb',
+        description: 'Sandbox user',
+    },
+
     'me': {
         shortcut: '.me',
         description: 'Your username',
@@ -31,9 +36,14 @@ const UserSearchIntelShortcuts: Record<string, UserSearchIntelShortcut> = {
         description: 'Last editor of previous page visited (other than yourself)',
     },
 
-    'e advanced': {
+    'e-p1': {
+        shortcut: '.e [page name] (optional: user filter)',
+        description: '.e [page name] (optional: user filter)',
+    },
+
+    'e-p2': {
         shortcut: '.e [page name] [user filter]',
-        description: 'Last editor of page (in quotes if spaces)',
+        description: '.e [page name] [user filter]',
     },
 
     'p advanced':{
