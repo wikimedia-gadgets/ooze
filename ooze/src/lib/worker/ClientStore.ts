@@ -86,6 +86,9 @@ export default class ClientStore {
             return;
         }
 
-        client.port.postMessage(message);
+        client.port.postMessage({
+            ...message,
+            clientId,
+        });
     }
 }

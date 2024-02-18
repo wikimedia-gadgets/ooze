@@ -65,6 +65,7 @@ export default class ClientWorkerCommunicationProvider {
         if (e.data.data.mwFunction && e.data.data.workerTaskID) {
             // See MediaWikiProxy.ts in the worker - mwFunction is a string array like ["config", "get"]
             // mwArgs is the arguments for the function
+            console.log('MediaWiki function request', e.data.data.mwFunction, e.data.data.mwArgs);
             const mwFunction: string[] = e.data.data.mwFunction;
             const mwArgs: any[] = e.data.data.mwArgs;
 
@@ -72,10 +73,20 @@ export default class ClientWorkerCommunicationProvider {
             // @ts-ignore
             const functionToRun = mwFunction.reduce((obj, key) => obj[key], mw) as (...args: any[]) => any;
 
-            const result = functionToRun(...mwArgs);
+            // This context needs to be the parent object of the function - we do this by popping the last key off the array
+            // and using that as the context
+            mwFunction.pop();
+
+            // @ts-ignore
+            const functionContext = mwFunction.reduce((obj, key) => obj[key], mw);
+
+        
+            const result = functionToRun.apply(functionContext, mwArgs);
+
 
             // If the result has a "then" property, it's a promise, and we should await it
             if (result?.then) {
+                console.log('Promise detected');
                 result.then((resolved: any) => {
                     this.sendToWorker({
                         taskID: e.data.data.workerTaskID,
@@ -84,16 +95,22 @@ export default class ClientWorkerCommunicationProvider {
                 });
 
                 // Todo: Handle rejections
-                
+
                 return;
             }
 
+            console.log('Result', result);
+
             this.sendToWorker({
-                taskID: e.data.data.workerTaskID,
+                mwFunction: e.data.data.mwFunction,
+                workerTaskID: e.data.data.workerTaskID,
                 result,
             });
 
+            return;
         }
+
+        console.warn('Unhandled message from worker', e.data.data);
     }
 
     // This is more than likely the most common way of communicating with the worker.

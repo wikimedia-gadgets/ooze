@@ -71,6 +71,9 @@ _self.onconnect = e => {
         // and should be passed back to the MediaWikiProxy
         if (data.workerTaskID && data.mwFunction) {
             MediaWikiProxy._?.handleResponse(data);
+            return;
         }
+
+        console.warn("Unhandled message from client", data);
     });
 };

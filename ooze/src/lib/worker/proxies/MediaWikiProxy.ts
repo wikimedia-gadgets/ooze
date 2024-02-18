@@ -5,6 +5,8 @@ import ClientStore from "../ClientStore";
 
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 
+// Type: UnwrapPromise but only for promise, otherwise do nothing
+
 export default class MediaWikiProxy {
     static _: MediaWikiProxy;
 
@@ -24,9 +26,6 @@ export default class MediaWikiProxy {
         ...args: T extends (...args: infer Params) => any ? Params : never
     ): Promise<UnwrapPromise<ReturnType<T>>> {
         // Send request to active client
-
-        // Todo: Run under mw
-
         // Get the optimal client ID
         const clientID = await ClientStore._?.getOptimalClientID();
 
@@ -47,10 +46,8 @@ export default class MediaWikiProxy {
         // Wait for client response
         const data = await promise;
 
-        console.log(data);
-
-        // Return response - placeholder
-        return {} as UnwrapPromise<ReturnType<T>>;
+        // Return response
+        return data.result;
     }
 
     // Use mwv to get the value of a mw variable. This runs asynchronously too.
