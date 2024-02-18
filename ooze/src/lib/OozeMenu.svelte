@@ -42,6 +42,9 @@
 
   let textInput: Element | undefined = undefined;
 
+  // If this is set, it will override the input value when tab is pressed
+  let queuedOverrideInputValue: string | null = "";
+
   $: if (commandBeingTyped && commandBeingTyped.arguments) {
     commandPalletInputIcon =
       commandBeingTyped.arguments[argumentNumber].icon ??
@@ -133,6 +136,13 @@
     // If tab pressed we move onto the next arg
     if (e.key === "Tab" || e.key === "Enter") {
       e.preventDefault();
+
+      // If there are is a queued override, use it (i.e. shortcuts)
+      if (queuedOverrideInputValue) {
+        commandInputValue = queuedOverrideInputValue;
+        queuedOverrideInputValue = null;
+      }
+
       switch (argumentNumber) {
         case -1:
           const command = Commands[commandInputValue.trim().toLowerCase()];
@@ -175,7 +185,11 @@
   };
 
   function helperOverrideInputValue(e: CustomEvent<string>) {
-    commandInputValue = e.detail;
+    queuedOverrideInputValue = e.detail;
+  }
+
+  function helperResetInputValue() {
+    queuedOverrideInputValue = null;
   }
 </script>
 
@@ -284,6 +298,7 @@
               this={commandBeingTyped.arguments[argumentNumber].helperElement}
               bind:commandInputValue
               on:overrideInputValue={helperOverrideInputValue}
+              on:resetInputValue={helperResetInputValue}
             />
           </div>
         {/if}

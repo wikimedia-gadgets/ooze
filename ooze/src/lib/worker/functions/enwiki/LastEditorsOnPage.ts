@@ -27,18 +27,21 @@ export default async function LastEditorsOnPage(page: string, limit: number = 10
 
     // Convert the params to a query string
     const queryString = new URLSearchParams(params as any).toString();
-
-    console.log(queryString);
-
     // Fetch the data
     const json = await ClientFetch._.cFetchJson(`https://en.wikipedia.org/w/api.php?${queryString}`);
-    console.log(json);
 
     // Get the revisions
-    const revisions = json.query.pages[Object.keys(json.query.pages)[0]].revisions;
+    const firstItem = json.query.pages[Object.keys(json.query.pages)[0]];
+    
+    if (firstItem.revisions === undefined) {
+        // Page does not exist or is not accessible to the user
+        return [];
+    }
+
+    const revisions = firstItem.revisions;
     
     // Revisions is now an array that we can map over to get the users
-    const users = revisions.map((rev: { user: string }) => rev.user);
+    const users = revisions.map((rev: { user: string }) => rev.user ?? "[rev-deleted]");
 
-    return [users];
+    return users;
 }

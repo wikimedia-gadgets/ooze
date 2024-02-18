@@ -71,6 +71,8 @@ export const Commands: Record<string, Command> = {
                 placeholder: "Enter a username...",
                 validate: v => {
                     if (v === "") return "Please enter a username.";
+                    // If first character is "." then it's a shortcut that hasn't been expanded
+                    if (v[0] === ".") return "Invalid shortcut";
                     return true;
                 },
 

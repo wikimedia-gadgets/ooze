@@ -56,8 +56,11 @@ If on a userpage: .u - the last userpage visited will be this one
           return;
         }
 
+        console.log(userResults);
+
         isLoadingResultOfShortcut = false;
         shortCutReplacement = userResults[0];
+        dispatch("overrideInputValue", shortCutReplacement);
         break;
 
       default:
@@ -65,6 +68,9 @@ If on a userpage: .u - the last userpage visited will be this one
         shortCutReplacement = null;
         shortCutResultError = null;
         isLoadingResultOfShortcut = false;
+
+        // Remove any queued overrides
+        dispatch("resetInputValue");
     }
   }
 
