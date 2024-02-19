@@ -46,8 +46,8 @@ const UserSearchIntelShortcuts: Record<string, UserSearchIntelShortcut> = {
         description: '.e [page name] [user filter]',
     },
 
-    'p advanced':{
-        shortcut: '.p [page name] [user filter]',
+    'p-p1':{
+        shortcut: '.p [user filter]',
         description: 'Last editor of given page (in quotes if spaces)',
     },
 

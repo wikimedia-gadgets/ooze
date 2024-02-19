@@ -11,7 +11,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import type { UserSearchIntelShortcut } from "./UserSearchIntelShortcuts";
   import UserSearchIntelShortcuts from "./UserSearchIntelShortcuts";
   import ClientWorkerCommunicationProvider from "../../../ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider";
-  import UserFilterCreator from "./UserFilterCreator.svelte";
+  import UserFilterCreator from "./UserFilters/UserFilterCreator.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -78,6 +78,7 @@ If on a userpage: .u - the last userpage visited will be this one
           helperComponent = UserFilterCreator;
           shortCutResultError = "Invalid user filter";
           isLoadingResultOfShortcut = false;
+          dispatch("resetInputValue");
           return;
         } else {
           helperComponent = null;
@@ -86,6 +87,7 @@ If on a userpage: .u - the last userpage visited will be this one
         if (split.length > 3) {
           shortCutResultError = "Too many arguments";
           isLoadingResultOfShortcut = false;
+          dispatch("resetInputValue");
           return;
         }
 
@@ -101,6 +103,7 @@ If on a userpage: .u - the last userpage visited will be this one
         if (userResults.length === 0) {
           shortCutResultError = "Page inaccessible";
           isLoadingResultOfShortcut = false;
+          dispatch("resetInputValue");
 
           console.warn("No results for page", pageName);
           return;
