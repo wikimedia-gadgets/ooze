@@ -188,6 +188,11 @@
     queuedOverrideInputValue = e.detail;
   }
 
+  // Set vs override - set is when the user types, override is when the helper component sets the value
+  function helperSetInputValue(e: CustomEvent<string>) {
+    commandInputValue = e.detail;
+  }
+
   function helperResetInputValue() {
     queuedOverrideInputValue = null;
   }
@@ -298,6 +303,7 @@
               this={commandBeingTyped.arguments[argumentNumber].helperElement}
               bind:commandInputValue
               on:overrideInputValue={helperOverrideInputValue}
+              on:setInputValue={helperSetInputValue}
               on:resetInputValue={helperResetInputValue}
             />
           </div>

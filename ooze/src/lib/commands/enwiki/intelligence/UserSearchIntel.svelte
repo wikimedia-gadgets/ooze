@@ -136,9 +136,17 @@ If on a userpage: .u - the last userpage visited will be this one
     shortCutTimeout = setTimeout(() => update(), 350);
   }
 
+  // When arg requested
   function updateArgEvent(event: CustomEvent<string>) {
     console.log("updateArgEvent", event.detail);
-    dispatch("updateArgString", event.detail);
+
+    // Put together based on split at space, but replace the last part with the new value
+    const split = commandInputValue.split(" ");
+
+    split.pop();
+    split.push(event.detail);
+
+    dispatch("setInputValue", split.join(" "));
   }
 </script>
 
