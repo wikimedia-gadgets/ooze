@@ -5,97 +5,58 @@ export interface UserFilter {
     menuItems: MenuItemData[];
 }
 
-// When converting a user filter back into a creator element, this has ticked and the dropdown menu item selected
-interface UserFilterConversionResult {
-    ticked: boolean;
-    // Value - if null we'll warn that by making changes to the filter, the selected menu item will be lost
-    selectedMenuItem: string | null;
-    // No need for include/exclude here as it's processed in the filter
-}
 
 const UserFilters: Record<string, UserFilter> = {
     "gf": {
-        title: "Average Good Faith",
+        title: "Average Edit Good Faith",
         menuItems: [
             {
-                value: 90,
-                label: "more than 90%",
-                description: `
-              Use 'Include' to only return editors who are very likely to be acting in good faith.
-              `,
+                value: "90",
+                label: "higher than 90%",
             },
             {
-                value: 75,
-                label: "more than 75%",
-                description: `
-              Use 'Include' to only return editors who are increasingly likely to be acting in good faith.
-              `,
+                value: "75",
+                label: "higher than 75%",
             },
 
             {
-                value: 50,
-                label: "more than 50%",
-                description: `
-              Use 'Include' to only return editors who are likely to be acting in good faith or
-              use 'Exclude' to only return editors who are likely to be acting in bad faith.
-              `,
+                value: "50",
+                label: "higher than 50%",
             },
             {
-                value: 25,
-                label: "more than 25%",
-                description: `
-              Use 'Exclude' to only return editors who are increasingly likely to be acting in bad faith.
-              `,
+                value: "25",
+                label: "higher than 25%",
             },
             {
-                value: 10,
-                label: "more than 10%",
-                description: `
-              Use 'Exclude' to only return editors who are very likely to be acting in bad faith.
-              `,
+                value: "10",
+                label: "higher than 10%",
             }
         ]
     },
 
     "v": {
-      title: "Average Vandalism Score",
+      title: "Average Edit Vandalism Score",
       menuItems: [
           {
-              value: 90,
-              label: "more than 90%",
-              description: `
-              Use 'Include' to only return editors who are very likely to be acting in bad faith.
-              `,
+              value: "90",
+              label: "higher than 90%",
           },
           {
-              value: 75,
-              label: "more than 75%",
-              description: `
-              Use 'Include' to only return editors who are increasingly likely to be acting in bad faith.
-              `,
+              value: "75",
+              label: "higher than 75%",
           },
 
           {
-              value: 50,
-              label: "more than 50%",
-              description: `
-              Use 'Include' to only return editors who are likely to vandals or
-              use 'Exclude' to only return editors who are likely to be acting in good faith.
-              `,
+              value: "50",
+              label: "higher than 50%",
           },
           {
-              value: 25,
-              label: "more than 25%",
-              description: `
-              Use 'Exclude' to only return editors who are increasingly likely to be vandals.
-              `,
+              value: "25",
+              label: "higher than 25%",
           },
           {
-              value: 10,
-              label: "more than 10%",
-              description: `
-              Use 'Exclude' to only return editors who are very likely to be vandals.
-              `,
+              value: "10",
+              label: "higher than 10%",
           }
       ]
     },
@@ -105,29 +66,24 @@ const UserFilters: Record<string, UserFilter> = {
       title: "Current Warning Level",
       menuItems: [
         {
-          value: 4, // Final warning or Only warning
+          value: "4", // Final warning or Only warning
           label: "Final warning or Only warning",
-          description: `Use 'Include' to only return editors who have received a final warning (level 4) or only warning (level 4im).`
         },
         {
-          value: 3, // Level 3
-          label: "Warning",
-          description: `Use 'Include' to only return editors who have received a level 3 warning.`
+          value: "3", // Level 3
+          label: "Warning (or higher)",
         },
         {
-          value: 2, // Level 2
-          label: "Caution",
-          description: `Use 'Include' to only return editors who have received a level 2 caution.`
+          value: "2", // Level 2
+          label: "Caution (or higher)",
         },
         {
-          value: 1, // Level 1
-          label: "Notice",
-          description: `Use 'Include' to only return editors who have received a level 1 notice.`
+          value: "1", // Level 1
+          label: "Notice (or higher)",
         },
         {
-          value: 0, // No warnings
+          value: "0", // No warnings
           label: "No warnings",
-          description: `Use 'Exclude' to only return editors who have received warnings.`
         }
       ]
     },
@@ -137,28 +93,25 @@ const UserFilters: Record<string, UserFilter> = {
       title: "Block Status",
       menuItems: [
         {
-          value: 1,
+          value: "p",
           label: "Permanent",
-          description: `Use 'Include' to only return editors who are currently blocked.`
         },
         {
-          value: 0,
+          value: "t",
           label: "Temporary",
-          description: `Use 'Exclude' to only return editors who are not currently blocked.`
-        }
+        },
+
+        {
+          value: "b",
+          label: "Partial Block",
+        },
       ]
     },
 
     // AIV report status
     "aiv" : {
       title: "Reported to AIV",
-      menuItems: [
-        {
-          value: 1,
-          label: "Reported",
-          description: `Use 'Include' to only return editors who have been reported to AIV.`
-        },
-      ]
+      menuItems: []
     },
 
     "rights": {
@@ -189,41 +142,31 @@ const UserFilters: Record<string, UserFilter> = {
 
     "anon": {
       title: "Anonymous users",
-      menuItems: [
-        {
-          value: 1,
-          label: "IP users",
-        },
-      ]
+      menuItems: []
     },
 
     "ec": {
       title: "Edit count",
       menuItems: [
         {
-          value: 100,
+          value: "100",
           label: "100+",
-          description: `Use 'Include' to only return editors who have made 100 or more edits.`
         },
         {
-          value: 500,
+          value: "500",
           label: "500+",
-          description: `Use 'Include' to only return editors who have made 500 or more edits.`
         },
         {
-          value: 1000,
+          value: "1000",
           label: "1000+",
-          description: `Use 'Include' to only return editors who have made 1000 or more edits.`
         },
         {
-          value: 5000,
+          value: "5000",
           label: "5000+",
-          description: `Use 'Include' to only return editors who have made 5000 or more edits.`
         },
         {
-          value: 10000,
-          label: "10000+",
-          description: `Use 'Include' to only return editors who have made 10000 or more edits.`
+          value: "10000",
+          label: "10,000+",
         },
       ]
     }

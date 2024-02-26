@@ -152,7 +152,10 @@ If on a userpage: .u - the last userpage visited will be this one
 
   {#if helperComponent}
     <div class="oozeShortCutHelper">
-      <svelte:component this={helperComponent} />
+      <svelte:component this={helperComponent} argString={
+        // Arg string is the last part of the command input value
+        commandInputValue.split(" ").pop()
+      } />
     </div>
   {/if}
 {/if}

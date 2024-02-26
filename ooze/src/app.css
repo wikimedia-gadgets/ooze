@@ -213,7 +213,7 @@
 .oozeShortCutHelper {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
   padding: 0.5rem;
 }
 
@@ -238,7 +238,21 @@
 
 .oozeUserFilterCreatorGroup {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1em;
   font-size: small;
+  flex-wrap: wrap;
+}
+
+.oozeMultipleChoiceSelect {
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.oozeCustomisedValue {
+  font-weight: bolder;
+  background: linear-gradient(to right, #8360c3, #2ebf91);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
