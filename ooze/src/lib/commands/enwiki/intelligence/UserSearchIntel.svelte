@@ -135,6 +135,11 @@ If on a userpage: .u - the last userpage visited will be this one
     }
     shortCutTimeout = setTimeout(() => update(), 350);
   }
+
+  function updateArgEvent(event: CustomEvent<string>) {
+    console.log("updateArgEvent", event.detail);
+    dispatch("updateArgString", event.detail);
+  }
 </script>
 
 {#if shortCutBeingTyped}
@@ -155,7 +160,7 @@ If on a userpage: .u - the last userpage visited will be this one
       <svelte:component this={helperComponent} argString={
         // Arg string is the last part of the command input value
         commandInputValue.split(" ").pop()
-      } />
+      } on:updateArgString={updateArgEvent} />
     </div>
   {/if}
 {/if}

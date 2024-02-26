@@ -99,6 +99,9 @@
           );
           // If start of filter string is a comma, remove it
           if (argString.startsWith(",")) argString = argString.slice(1);
+
+          // Tell the parent component to update the arg string to reflect our changes
+          dispatch("updateArgString", argString);
           return;
         }
 
@@ -115,18 +118,28 @@
             // Add the filter to the string if it doesn't exist
             if (argString.length > 0) argString += `,${newFilter}`;
             else argString = newFilter;
+
+            // Tell the parent component to update the arg string to reflect our changes
+            dispatch("updateArgString", argString);
+
             break;
           case 1:
             // Replace the filter in the string if it exists
             argString = argString.replace(regex, newFilter);
+
+            // Tell the parent component to update the arg string to reflect our changes
+            dispatch("updateArgString", argString);
+
             break;
           default:
+            
             // If more than one match in the string, turn on changesWillReset and do not update the filter string
             changesWillReset = true;
             changesWillResetReason = `
             Multiple matches for filter ${filter} in the query.
             This may be valid, but can't be used with the filter creator.
             `;
+
             return;
         }
       }}
