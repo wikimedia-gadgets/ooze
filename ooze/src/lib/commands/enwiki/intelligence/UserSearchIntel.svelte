@@ -13,6 +13,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import ClientWorkerCommunicationProvider from "../../../ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider";
   import UserFilterCreator from "./UserFilters/UserFilterCreator.svelte";
   import type UsersSearch from "../../../worker/functions/enwiki/UsersSearch";
+  import type { UserResult } from "../../../worker/functions/enwiki/UsersSearch";
 
   const dispatch = createEventDispatcher();
 
@@ -23,6 +24,8 @@ If on a userpage: .u - the last userpage visited will be this one
 
   let isLoadingResultOfShortcut = false;
   let shortCutResultError: string | null = null;
+
+  let userSearchResults: UserResult[] | null = null;
 
   // To render to help with parameters, i.e. creating user filters
   let helperComponent: any = null;
@@ -127,11 +130,10 @@ If on a userpage: .u - the last userpage visited will be this one
         dispatch("resetInputValue");
 
         // Run a basic search
-        console.log(
+        userSearchResults =
           await ClientWorkerCommunicationProvider._.workerFunction<
             typeof UsersSearch
-          >("enwikiUsersSearch", commandInputValue)
-        );
+          >("enwikiUsersSearch", commandInputValue);
     }
   };
 
@@ -181,4 +183,28 @@ If on a userpage: .u - the last userpage visited will be this one
       />
     </div>
   {/if}
+{/if}
+
+<!-- Search results -->
+{#if userSearchResults}
+  <div class="oozeUserSearchResults">
+    {#each userSearchResults as user}
+      <div class="oozeUserSearchResult">
+        <span class="oozeUserSearchResultName">{user.username}</span>
+        <span class="oozeUserSearchResultEditCount">{user.editCount}</span>
+        {#if Object.keys(user.block).length > 0}
+          <span class="oozeUserSearchResultBlock">Blocked</span>
+          {#if user.block.blocknocreate === ""}
+            <span class="oozeUserSearchResultBlockExtra">Page creation blocked</span>
+          {/if}
+
+          {#if user.block.blockemail === ""}
+            <span class="oozeUserSearchResultBlockExtra">Email blocked</span>
+          {/if}
+
+          <span>{user.block.blockreason}</span>
+        {/if}
+      </div>
+    {/each}
+  </div>
 {/if}

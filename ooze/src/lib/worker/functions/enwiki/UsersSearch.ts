@@ -41,17 +41,16 @@ export default async function UsersSearch(usernamePrefix: string, limit: number 
     }
 
     const result = json.query.allusers;
-    console.log(result);
-
     // Map into UserResults
 
     const userResults: UserResult[] = result.map((user: any) => {
         // Block details - all keys that start with "block"
-        const blockKeys = Object.keys(user).filter(key => key.startsWith("block"));
         const block: any = {};
-        blockKeys.forEach(key => {
-            block[key] = user[key];
-        });
+        for (const key in user) {
+            if (key.startsWith("block")) {
+                block[key] = user[key];
+            }
+        }
 
         return {
             username: user.name,
