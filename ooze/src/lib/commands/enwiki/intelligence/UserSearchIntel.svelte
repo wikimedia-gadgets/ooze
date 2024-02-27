@@ -12,6 +12,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import UserSearchIntelShortcuts from "./UserSearchIntelShortcuts";
   import ClientWorkerCommunicationProvider from "../../../ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider";
   import UserFilterCreator from "./UserFilters/UserFilterCreator.svelte";
+  import type UsersSearch from "../../../worker/functions/enwiki/UsersSearch";
 
   const dispatch = createEventDispatcher();
 
@@ -124,6 +125,13 @@ If on a userpage: .u - the last userpage visited will be this one
         isLoadingResultOfShortcut = false;
         // Remove any queued overrides
         dispatch("resetInputValue");
+
+        // Run a basic search
+        console.log(
+          await ClientWorkerCommunicationProvider._.workerFunction<
+            typeof UsersSearch
+          >("enwikiUsersSearch", commandInputValue)
+        );
     }
   };
 
@@ -165,10 +173,12 @@ If on a userpage: .u - the last userpage visited will be this one
 
   {#if helperComponent}
     <div class="oozeShortCutHelper">
-      <svelte:component this={helperComponent} argString={
-        // Arg string is the last part of the command input value
-        commandInputValue.split(" ").pop()
-      } on:updateArgString={updateArgEvent} />
+      <svelte:component
+        this={helperComponent}
+        argString={// Arg string is the last part of the command input value
+        commandInputValue.split(" ").pop()}
+        on:updateArgString={updateArgEvent}
+      />
     </div>
   {/if}
 {/if}

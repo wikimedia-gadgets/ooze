@@ -2,7 +2,9 @@ import ClientStore from "./ClientStore";
 import WorkerFunctionHandler from "./WorkerFunctionHandler";
 import OozeDb from "./db/DbConnection";
 import Heartbeat from "./functions/Heartbeat";
+import BasicSearch from "./functions/enwiki/BasicSearch";
 import LastEditorsOnPage from "./functions/enwiki/LastEditorsOnPage";
+import UsersSearch from "./functions/enwiki/UsersSearch";
 import ClientFetch from "./proxies/ClientFetch";
 import MediaWikiProxy from "./proxies/MediaWikiProxy";
 
@@ -27,6 +29,8 @@ new ClientFetch();
 const wfh = new WorkerFunctionHandler({
     "heartbeat": Heartbeat,
     "enwikiLastEditorsOnPage": LastEditorsOnPage,
+    "enwikiBasicSearch": BasicSearch,
+    "enwikiUsersSearch": UsersSearch,
 });
 
 (async () => {
