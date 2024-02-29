@@ -12,6 +12,7 @@ export interface UserResult {
     editCount: number;
     joinedTimestamp: string;
     reportedToAIV?: boolean;
+    warningLevel?: 0 | 1 | 2 | 3 | 4;
 }
 
 

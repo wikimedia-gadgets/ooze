@@ -15,6 +15,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import type UsersSearch from "../../../worker/functions/enwiki/UsersSearch";
   import type { UserResult } from "../../../worker/functions/enwiki/UsersSearch";
   import type CheckIfReportedToAIV from "../../../worker/functions/enwiki/CheckIfReportedToAIV";
+  import type GetUserWarningLevel from "../../../worker/functions/enwiki/GetUserWarningLevel";
 
   const dispatch = createEventDispatcher();
 
@@ -130,28 +131,44 @@ If on a userpage: .u - the last userpage visited will be this one
         // Remove any queued overrides
         dispatch("resetInputValue");
 
-        // Run a basic search
+        // Run a basic search first, then we get our deeper intel
         userSearchResults =
           await ClientWorkerCommunicationProvider._.workerFunction<
             typeof UsersSearch
           >("enwikiUsersSearch", commandInputValue);
 
         // Once that's done check AIV. Only do that if usernames in userSearchResults > 0
-        // Todo: promise all
+        // IMPORTANT: No (top level) await here, we want to run everything at once
         if (userSearchResults && userSearchResults.length > 0) {
-          const aivResults =
-            await ClientWorkerCommunicationProvider._.workerFunction<
+          (async () => {
+            const aivResults = await ClientWorkerCommunicationProvider._.workerFunction<
               typeof CheckIfReportedToAIV
             >(
               "enwikiCheckAiv",
               userSearchResults.map((u) => u.username)
             );
+            userSearchResults = userSearchResults.map((u) => {
+                u.reportedToAIV = aivResults[u.username];
+                return u;
+              });
+          })();
 
-          // Add to userSearchResults to reflect this
-          userSearchResults = userSearchResults.map((u) => {
-            u.reportedToAIV = aivResults[u.username];
-            return u;
-          });
+          // Check warning level
+          for (const { username } of userSearchResults) {
+            (async () => {
+              const warningLevel = await ClientWorkerCommunicationProvider._.workerFunction<
+                typeof GetUserWarningLevel
+              >("enwikiGetUserWarningLevel", username);
+
+              // Update the userSearchResults
+              userSearchResults = userSearchResults.map((u) => {
+                if (u.username === username) {
+                  u.warningLevel = warningLevel;
+                }
+                return u;
+              });
+            })();
+          }
         }
     }
   };
@@ -211,9 +228,36 @@ If on a userpage: .u - the last userpage visited will be this one
       <div class="oozeUserSearchResult">
         <span class="oozeUserSearchResultName">{user.username}</span>
         <span class="oozeUserSearchResultEditCount">{user.editCount}</span>
+
+        <!-- Warning level -->
+        {#if user.warningLevel === undefined}
+          <!-- This adds a fade in fade out loading -->
+          <span class="oozeUserSearchResultWarningLevel oozeLoading">Loading</span>
+        {:else if user.warningLevel === 0}
+          <span class="oozeUserSearchResultWarningLevel warningLevelNone"
+            >No Warnings</span
+          >
+        {:else if user.warningLevel === 1}
+          <span class="oozeUserSearchResultWarningLevel warningLevelNotice"
+            >Notice</span
+          >
+        {:else if user.warningLevel === 2}
+          <span class="oozeUserSearchResultWarningLevel warningLevelCaution"
+            >Caution</span
+          >
+        {:else if user.warningLevel === 3}
+          <span class="oozeUserSearchResultWarningLevel warningLevelWarning"
+            >Warning</span
+          >
+        {:else if user.warningLevel === 4}
+          <span class="oozeUserSearchResultWarningLevel warningLevelFinalWarning"
+            >Final Warning</span
+          >
+        {/if}
+
         {#if user.reportedToAIV === undefined}
           <!-- This adds a fade in fade out loading -->
-          <span class="oozeUserSearchResultReportedToAIV aivLoading">AIV</span>
+          <span class="oozeUserSearchResultReportedToAIV oozeLoading">AIV</span>
         {:else if user.reportedToAIV === true}
           <span class="oozeUserSearchResultReportedToAIV aivReported"
             >AIV Report</span
@@ -223,7 +267,6 @@ If on a userpage: .u - the last userpage visited will be this one
             >AIV</span
           >
         {/if}
-
         {#if Object.keys(user.block).length > 0}
           <span class="oozeUserSearchResultBlock">Blocked</span>
           {#if user.block.blocknocreate === ""}

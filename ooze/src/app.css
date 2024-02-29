@@ -359,7 +359,7 @@
 }
 
 /* Loading - fade in and out effect */
-.aivLoading {
+.oozeLoading {
   animation: loadFadeIn 0.5s infinite linear alternate;
 }
 
@@ -373,5 +373,42 @@
 .oozeUserSearchResultReportedToAIV.aivNotReported::before {
   content: '• ';
   color: green;
+}
+
+/* Warnings */
+.oozeUserSearchResultWarningLevel {
+  font-size: small;
+  font-weight: lighter;
+}
+
+/* Before - gray */
+.oozeUserSearchResultWarningLevel.oozeLading::before {
+  content: 'WL: ';
+  color: gray;
+}
+
+/* Warning level none - green */
+.oozeUserSearchResultWarningLevel.warningLevelNone {
+  color: green;
+}
+
+/* Notice - text colour blue */
+.oozeUserSearchResultWarningLevel.warningLevelNotice {
+  color: blue;
+}
+
+/* Caution - orange */
+.oozeUserSearchResultWarningLevel.warningLevelCaution {
+  color: orange;
+}
+
+/* Warning - red */
+.oozeUserSearchResultWarningLevel.warningLevelWarning {
+  color: red;
+}
+
+/* Final warning dark red */
+.oozeUserSearchResultWarningLevel.warningLevelFinalWarning {
+  color: rgb(102, 4, 4);
 }
 
