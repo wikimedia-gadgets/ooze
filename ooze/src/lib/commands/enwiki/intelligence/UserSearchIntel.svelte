@@ -202,7 +202,13 @@ If on a userpage: .u - the last userpage visited will be this one
             <span class="oozeUserSearchResultBlockExtra">Email blocked</span>
           {/if}
 
-          <span>{user.block.blockreason}</span>
+          <span class="oozeUserSearchBlockReason">
+            {user.block.blockreason}<br/><br/>
+            <span>
+              <strong>Additional info:</strong> Blocked by {user.block.blockedby} on {new Date(user.block.blockedtimestamp).toLocaleString()}<br/>
+              <strong>Expires:</strong> {(user.block.blockexpiry === "infinite" ? "Never" : user.block.blockexpiry)}
+            </span>
+          </span>
         {/if}
       </div>
     {/each}

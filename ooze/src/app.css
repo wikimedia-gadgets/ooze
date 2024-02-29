@@ -262,7 +262,6 @@
   flex-direction: column;
   gap: 0.5em;
   padding: 0.5rem;
-  font-family: monospace;
   overflow-y: auto;
   max-height: 20rem;
 
@@ -291,4 +290,58 @@
 /* First search result is what will be sent on tab - highlight with --background-color-progressive */
 .oozeUserSearchResult:first-child {
   border: 2px solid var(--background-color-progressive);
+}
+
+.oozeUserSearchResultName {
+  font-weight: lighter;
+  font-size: large;
+}
+
+.oozeUserSearchResultEditCount {
+  font-size: small;
+}
+
+/* Edit count - before add EC */
+.oozeUserSearchResultEditCount::before {
+  content: 'EC: ';
+  color: purple;
+}
+
+.oozeUserSearchResultBlock {
+  font-size: small;
+  color: red;
+  font-weight: lighter;
+}
+
+.oozeUserSearchResultBlockExtra {
+  font-size: small;
+  font-weight: lighter;
+}
+
+/* If more than one extra, add bullet point first */
+.oozeUserSearchResultBlockExtra::before {
+  content: '• ';
+  color: red;
+}
+
+.oozeUserSearchBlockReason {
+  font-size: small;
+  font-weight: lighter;
+
+  /* Clamp to 2 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* On hover, unclamp */
+.oozeUserSearchResult:hover .oozeUserSearchBlockReason {
+  -webkit-line-clamp: unset;
+}
+
+/* Before, text, block reason */
+.oozeUserSearchBlockReason::before {
+  content: 'Reason: ';
+  color: red;
 }
