@@ -14,6 +14,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import UserFilterCreator from "./UserFilters/UserFilterCreator.svelte";
   import type UsersSearch from "../../../worker/functions/enwiki/UsersSearch";
   import type { UserResult } from "../../../worker/functions/enwiki/UsersSearch";
+  import type CheckIfReportedToAIV from "../../../worker/functions/enwiki/CheckIfReportedToAIV";
 
   const dispatch = createEventDispatcher();
 
@@ -35,7 +36,7 @@ If on a userpage: .u - the last userpage visited will be this one
   // Throttle - only update 400ms after last keypress
   let shortCutTimeout: NodeJS.Timeout | null = null;
 
-  $: update = async () => {
+  const update = async () => {
     const split = commandInputValue.split(" ");
     switch (split[0]) {
       case ".sb":
@@ -134,6 +135,24 @@ If on a userpage: .u - the last userpage visited will be this one
           await ClientWorkerCommunicationProvider._.workerFunction<
             typeof UsersSearch
           >("enwikiUsersSearch", commandInputValue);
+
+        // Once that's done check AIV. Only do that if usernames in userSearchResults > 0
+        // Todo: promise all
+        if (userSearchResults && userSearchResults.length > 0) {
+          const aivResults =
+            await ClientWorkerCommunicationProvider._.workerFunction<
+              typeof CheckIfReportedToAIV
+            >(
+              "enwikiCheckAiv",
+              userSearchResults.map((u) => u.username)
+            );
+
+          // Add to userSearchResults to reflect this
+          userSearchResults = userSearchResults.map((u) => {
+            u.reportedToAIV = aivResults[u.username];
+            return u;
+          });
+        }
     }
   };
 
@@ -192,10 +211,25 @@ If on a userpage: .u - the last userpage visited will be this one
       <div class="oozeUserSearchResult">
         <span class="oozeUserSearchResultName">{user.username}</span>
         <span class="oozeUserSearchResultEditCount">{user.editCount}</span>
+        {#if user.reportedToAIV === undefined}
+          <!-- This adds a fade in fade out loading -->
+          <span class="oozeUserSearchResultReportedToAIV aivLoading">AIV</span>
+        {:else if user.reportedToAIV === true}
+          <span class="oozeUserSearchResultReportedToAIV aivReported"
+            >AIV Report</span
+          >
+        {:else}
+          <span class="oozeUserSearchResultReportedToAIV aivNotReported"
+            >AIV</span
+          >
+        {/if}
+
         {#if Object.keys(user.block).length > 0}
           <span class="oozeUserSearchResultBlock">Blocked</span>
           {#if user.block.blocknocreate === ""}
-            <span class="oozeUserSearchResultBlockExtra">Page creation blocked</span>
+            <span class="oozeUserSearchResultBlockExtra"
+              >Page creation blocked</span
+            >
           {/if}
 
           {#if user.block.blockemail === ""}
@@ -203,10 +237,16 @@ If on a userpage: .u - the last userpage visited will be this one
           {/if}
 
           <span class="oozeUserSearchBlockReason">
-            {user.block.blockreason}<br/><br/>
+            {user.block.blockreason}<br /><br />
             <span>
-              <strong>Additional info:</strong> Blocked by {user.block.blockedby} on {new Date(user.block.blockedtimestamp).toLocaleString()}<br/>
-              <strong>Expires:</strong> {(user.block.blockexpiry === "infinite" ? "Never" : user.block.blockexpiry)}
+              <strong>Additional info:</strong> Blocked by {user.block
+                .blockedby} on {new Date(
+                user.block.blockedtimestamp
+              ).toLocaleString()}<br />
+              <strong>Expires:</strong>
+              {user.block.blockexpiry === "infinite"
+                ? "Never"
+                : user.block.blockexpiry}
             </span>
           </span>
         {/if}

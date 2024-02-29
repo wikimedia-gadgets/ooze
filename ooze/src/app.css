@@ -345,3 +345,33 @@
   content: 'Reason: ';
   color: red;
 }
+
+.oozeUserSearchResultReportedToAIV {
+  font-size: small;
+  font-weight: lighter;
+  color: gray;
+}
+
+/* Before - bulletpoint */
+.oozeUserSearchResultReportedToAIV::before {
+  content: '• ';
+  color: gray;
+}
+
+/* Loading - fade in and out effect */
+.aivLoading {
+  animation: loadFadeIn 0.5s infinite linear alternate;
+}
+
+/* aivReported - red bullet */
+.oozeUserSearchResultReportedToAIV.aivReported::before {
+  content: '• ';
+  color: red;
+}
+
+/* aivNotReported - green bullet */
+.oozeUserSearchResultReportedToAIV.aivNotReported::before {
+  content: '• ';
+  color: green;
+}
+

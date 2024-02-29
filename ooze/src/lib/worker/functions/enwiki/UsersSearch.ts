@@ -11,6 +11,7 @@ export interface UserResult {
     rights: string[];
     editCount: number;
     joinedTimestamp: string;
+    reportedToAIV?: boolean;
 }
 
 

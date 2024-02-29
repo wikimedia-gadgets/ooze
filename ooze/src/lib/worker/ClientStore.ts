@@ -23,7 +23,6 @@ export default class ClientStore {
         const now = Date.now();
         for (const [id, client] of this.clients) {
             if (now - client.lastActive > 500) {
-                console.log(`Purging client ${id}, stale for ${now - client.lastActive}ms.`);
                 this.clients.delete(id);
             }
         }
@@ -60,7 +59,7 @@ export default class ClientStore {
         // If optimal client is null, we have no clients. Wait 100ms * retryCount and try again.
         // We do this forever until focus is restored to a client.
         if (!optimalClient) {
-            console.log(`No clients available, retrying... (${retryCount ?? 1})`);
+            console.warn(`[OozeWorker] No clients available, retrying... (${retryCount ?? 1})`);
             if (!retryCount) retryCount = 1;
             // If retryCount is > 20, we should reset the count to 1
             if (retryCount > 20) retryCount = 1;

@@ -3,6 +3,7 @@ import WorkerFunctionHandler from "./WorkerFunctionHandler";
 import OozeDb from "./db/DbConnection";
 import Heartbeat from "./functions/Heartbeat";
 import BasicSearch from "./functions/enwiki/BasicSearch";
+import CheckIfReportedToAIV from "./functions/enwiki/CheckIfReportedToAIV";
 import LastEditorsOnPage from "./functions/enwiki/LastEditorsOnPage";
 import UsersSearch from "./functions/enwiki/UsersSearch";
 import ClientFetch from "./proxies/ClientFetch";
@@ -31,6 +32,7 @@ const wfh = new WorkerFunctionHandler({
     "enwikiLastEditorsOnPage": LastEditorsOnPage,
     "enwikiBasicSearch": BasicSearch,
     "enwikiUsersSearch": UsersSearch,
+    "enwikiCheckAiv": CheckIfReportedToAIV,
 });
 
 (async () => {
