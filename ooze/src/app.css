@@ -277,6 +277,7 @@
   justify-content: left;
   flex-wrap: wrap;
   padding: 0.5rem;
+  cursor: pointer;
 
   /* Black line at bottom */
   border-bottom: 1px solid var(--background-color-interactive);

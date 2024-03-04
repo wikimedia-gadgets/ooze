@@ -136,16 +136,21 @@ If on a userpage: .u - the last userpage visited will be this one
         isLoadingResultOfShortcut = false;
         // Remove any queued overrides
         dispatch("resetInputValue");
-        defaultIntelSearch(commandInputValue);
+        defaultIntelSearch(commandInputValue, 3, true);
     }
   };
 
-  const defaultIntelSearch = async (userPrefix: string, limit: number = 3) => {
+  const defaultIntelSearch = async (userPrefix: string, limit: number = 3, overrideInputValue = false) => {
     // Run a basic search first, then we get our deeper intel
     userSearchResults =
       await ClientWorkerCommunicationProvider._.workerFunction<
         typeof UsersSearch
       >("enwikiUsersSearch", userPrefix, limit); // Todo: Limit here is 3 but make this a setting
+
+      // If overriding input value, set the input value to the first result
+      if (overrideInputValue && userSearchResults && userSearchResults.length > 0) {
+        dispatch("overrideInputValue", userSearchResults[0].username);
+      }
 
     // Once that's done check AIV. Only do that if usernames in userSearchResults > 0
     // IMPORTANT: No (top level) await here, we want to run everything at once
@@ -236,8 +241,15 @@ If on a userpage: .u - the last userpage visited will be this one
 <!-- Search results -->
 {#if userSearchResults}
   <div class="oozeUserSearchResults">
-    {#each userSearchResults as user}
-      <div class="oozeUserSearchResult">
+    {#each userSearchResults as user, i}
+      <div class="oozeUserSearchResult" on:click={()=>{
+        // On click, set the input value to the username
+        dispatch("setInputValue", user.username);
+      }} on:keydown={(e) => {
+        if (e.key === "Enter") {
+          dispatch("setInputValue", user.username);
+        } 
+      }} role="button" tabindex={i}>
         <span class="oozeUserSearchResultName">{user.username}</span>
         <span class="oozeUserSearchResultEditCount">{user.editCount}</span>
 

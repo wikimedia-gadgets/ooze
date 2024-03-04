@@ -154,3 +154,5 @@
     >
   </span>
 {/if}
+
+<h2>User filters are coming soon and are not working in this version of OOZE.</h2>
