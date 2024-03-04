@@ -4,8 +4,10 @@ import OozeDb from "./db/DbConnection";
 import Heartbeat from "./functions/Heartbeat";
 import BasicSearch from "./functions/enwiki/BasicSearch";
 import CheckIfReportedToAIV from "./functions/enwiki/CheckIfReportedToAIV";
+import GetUserRevIDs from "./functions/enwiki/GetUserRevIDs";
 import GetUserWarningLevel from "./functions/enwiki/GetUserWarningLevel";
 import LastEditorsOnPage from "./functions/enwiki/LastEditorsOnPage";
+import LiftWingInsights from "./functions/enwiki/LiftWingInsights";
 import UsersSearch from "./functions/enwiki/UsersSearch";
 import ClientFetch from "./proxies/ClientFetch";
 import MediaWikiProxy from "./proxies/MediaWikiProxy";
@@ -35,6 +37,8 @@ const wfh = new WorkerFunctionHandler({
     "enwikiUsersSearch": UsersSearch,
     "enwikiCheckAiv": CheckIfReportedToAIV,
     "enwikiGetUserWarningLevel": GetUserWarningLevel,
+    "enwikiLiftWingInsights": LiftWingInsights,
+    "enwikiGetUserRevIDs": GetUserRevIDs,
 });
 
 (async () => {

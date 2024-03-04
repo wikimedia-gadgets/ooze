@@ -16,6 +16,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import type { UserResult } from "../../../worker/functions/enwiki/UsersSearch";
   import type CheckIfReportedToAIV from "../../../worker/functions/enwiki/CheckIfReportedToAIV";
   import type GetUserWarningLevel from "../../../worker/functions/enwiki/GetUserWarningLevel";
+  import UserLiftWingIntel from "./UserLiftWingIntel.svelte";
 
   const dispatch = createEventDispatcher();
 
@@ -46,6 +47,7 @@ If on a userpage: .u - the last userpage visited will be this one
         shortCutReplacement = "Sandbox for User Warnings";
         isLoadingResultOfShortcut = false;
         dispatch("overrideInputValue", shortCutReplacement);
+        defaultIntelSearch(shortCutReplacement, 1);
         break;
       case ".me":
         shortCutBeingTyped = UserSearchIntelShortcuts.me;
@@ -56,6 +58,7 @@ If on a userpage: .u - the last userpage visited will be this one
         shortCutReplacement = mw.config.get("wgUserName") ?? "";
         dispatch("overrideInputValue", shortCutReplacement);
         isLoadingResultOfShortcut = false;
+        defaultIntelSearch(shortCutReplacement, 1);
         break;
       case ".u":
         shortCutBeingTyped = UserSearchIntelShortcuts.u;
@@ -85,6 +88,7 @@ If on a userpage: .u - the last userpage visited will be this one
           shortCutResultError = "Invalid user filter";
           isLoadingResultOfShortcut = false;
           dispatch("resetInputValue");
+          userSearchResults = [];
           return;
         } else {
           helperComponent = null;
@@ -94,6 +98,7 @@ If on a userpage: .u - the last userpage visited will be this one
           shortCutResultError = "Too many arguments";
           isLoadingResultOfShortcut = false;
           dispatch("resetInputValue");
+          userSearchResults = [];
           return;
         }
 
@@ -110,7 +115,7 @@ If on a userpage: .u - the last userpage visited will be this one
           shortCutResultError = "Page inaccessible";
           isLoadingResultOfShortcut = false;
           dispatch("resetInputValue");
-
+          userSearchResults = [];
           console.warn("No results for page", pageName);
           return;
         }
@@ -119,6 +124,7 @@ If on a userpage: .u - the last userpage visited will be this one
         isLoadingResultOfShortcut = false;
         shortCutReplacement = userResults[0];
         dispatch("overrideInputValue", shortCutReplacement);
+        defaultIntelSearch(shortCutReplacement, 1);
         break;
 
       default:
@@ -130,46 +136,52 @@ If on a userpage: .u - the last userpage visited will be this one
         isLoadingResultOfShortcut = false;
         // Remove any queued overrides
         dispatch("resetInputValue");
+        defaultIntelSearch(commandInputValue);
+    }
+  };
 
-        // Run a basic search first, then we get our deeper intel
-        userSearchResults =
+  const defaultIntelSearch = async (userPrefix: string, limit: number = 3) => {
+    // Run a basic search first, then we get our deeper intel
+    userSearchResults =
+      await ClientWorkerCommunicationProvider._.workerFunction<
+        typeof UsersSearch
+      >("enwikiUsersSearch", userPrefix, limit); // Todo: Limit here is 3 but make this a setting
+
+    // Once that's done check AIV. Only do that if usernames in userSearchResults > 0
+    // IMPORTANT: No (top level) await here, we want to run everything at once
+    if (userSearchResults && userSearchResults.length > 0) {
+      (async () => {
+        const aivResults =
           await ClientWorkerCommunicationProvider._.workerFunction<
-            typeof UsersSearch
-          >("enwikiUsersSearch", commandInputValue);
+            typeof CheckIfReportedToAIV
+          >(
+            "enwikiCheckAiv",
+            userSearchResults.map((u) => u.username)
+          );
 
-        // Once that's done check AIV. Only do that if usernames in userSearchResults > 0
-        // IMPORTANT: No (top level) await here, we want to run everything at once
-        if (userSearchResults && userSearchResults.length > 0) {
-          (async () => {
-            const aivResults = await ClientWorkerCommunicationProvider._.workerFunction<
-              typeof CheckIfReportedToAIV
-            >(
-              "enwikiCheckAiv",
-              userSearchResults.map((u) => u.username)
-            );
-            userSearchResults = userSearchResults.map((u) => {
-                u.reportedToAIV = aivResults[u.username];
-                return u;
-              });
-          })();
+        userSearchResults = userSearchResults.map((u) => {
+          u.reportedToAIV = aivResults[u.username];
+          return u;
+        });
+      })();
 
-          // Check warning level
-          for (const { username } of userSearchResults) {
-            (async () => {
-              const warningLevel = await ClientWorkerCommunicationProvider._.workerFunction<
-                typeof GetUserWarningLevel
-              >("enwikiGetUserWarningLevel", username);
+      // Check warning level
+      for (const { username } of userSearchResults) {
+        (async () => {
+          const warningLevel =
+            await ClientWorkerCommunicationProvider._.workerFunction<
+              typeof GetUserWarningLevel
+            >("enwikiGetUserWarningLevel", username);
 
-              // Update the userSearchResults
-              userSearchResults = userSearchResults.map((u) => {
-                if (u.username === username) {
-                  u.warningLevel = warningLevel;
-                }
-                return u;
-              });
-            })();
-          }
-        }
+          // Update the userSearchResults
+          userSearchResults = userSearchResults.map((u) => {
+            if (u.username === username) {
+              u.warningLevel = warningLevel;
+            }
+            return u;
+          });
+        })();
+      }
     }
   };
 
@@ -232,7 +244,9 @@ If on a userpage: .u - the last userpage visited will be this one
         <!-- Warning level -->
         {#if user.warningLevel === undefined}
           <!-- This adds a fade in fade out loading -->
-          <span class="oozeUserSearchResultWarningLevel oozeLoading">Loading</span>
+          <span class="oozeUserSearchResultWarningLevel oozeLoading"
+            >Loading</span
+          >
         {:else if user.warningLevel === 0}
           <span class="oozeUserSearchResultWarningLevel warningLevelNone"
             >No Warnings</span
@@ -250,7 +264,8 @@ If on a userpage: .u - the last userpage visited will be this one
             >Warning</span
           >
         {:else if user.warningLevel === 4}
-          <span class="oozeUserSearchResultWarningLevel warningLevelFinalWarning"
+          <span
+            class="oozeUserSearchResultWarningLevel warningLevelFinalWarning"
             >Final Warning</span
           >
         {/if}
@@ -267,6 +282,15 @@ If on a userpage: .u - the last userpage visited will be this one
             >AIV</span
           >
         {/if}
+
+        <!-- Quality indicator -->
+        <UserLiftWingIntel
+          username={user.username}
+          editCount={user.editCount}
+          isReportedToAIV={user.reportedToAIV}
+          warningLevel={user.warningLevel}
+        />
+
         {#if Object.keys(user.block).length > 0}
           <span class="oozeUserSearchResultBlock">Blocked</span>
           {#if user.block.blocknocreate === ""}

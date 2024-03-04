@@ -116,21 +116,14 @@ export default class ClientWorkerCommunicationProvider {
             console.log('Client fetch request', e.data.data.clientFetchJsonUrl, e.data.data.clientFetchJsonOptions);
             // Fetch the data
             const fetchR = await fetch(e.data.data.clientFetchJsonUrl, e.data.data.clientFetchJsonOptions);
-            if (!fetchR.ok) {
-                // Todo: handle this better
-                this.sendToWorker({
-                    workerTaskID: e.data.data.workerTaskID,
-                    error: 'Failed to fetch data',
-                });
-
-                return;
-            }
 
             const json = await fetchR.json();
 
             this.sendToWorker({
                 workerTaskID: e.data.data.workerTaskID,
                 clientFetchJsonResult: json,
+                ok: fetchR.ok,
+                status: fetchR.status,
             });
             return;
         }

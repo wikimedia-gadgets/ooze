@@ -1,0 +1,195 @@
+<!--
+    Generate a UserQualityRanking for a user, based on their last 10 edits.
+    We get three percentages from liftwing:
+    - Good faith likelihood
+    - Vandalism likelihood
+    - Reverted likelihood
+
+    First we invert the good faith likelihood, so that 0% is absolutely good, and 100% is absolutely bad.
+    Then for each edit, we average the three percentages, and then average the averages.
+    We then subtract 25% from the final average, and add points based on edit count
+    (usually if there has been a higher number of edits, the user is more likely to be good faith).
+
+    First on a range of edits from
+    0-15 we add 25 to 20 points (most vandals are around this range)
+    From 15-50 we add 20 to 5 points
+    From 50-100 we add 5 to 0 points
+    From 100-200 we add 0 to -5 points
+    From 200-500 we add -5 to -10 points
+    From 500-1000 we add -10 to -15 points.
+
+    If the user is reported to AIV, we add 15 points to the final score.
+
+    For users with warnings, we add 5 * warning level to the final score.
+
+    Example one:
+    - User has 10 edits, and has a 70% good faith likelihood, 10% vandalism likelihood, and 5% reverted likelihood.
+    - First (70 + 10 + 5) / 3 = 28.33%
+    - Then -25% = 3.33%
+    - Then we add 23 points, so 26.33% - this new editor is likely to be good faith.
+
+    Example two:
+    - User has 12 edits, has a 13% good faith likelihood, 80% vandalism likelihood, and 70% reverted likelihood. Level 4 warning and reported to AIV.
+    - First (87 + 80 + 70) / 3 = 79% - this places them in the vandalism range.
+    - Then -25% = 54%
+    - For 12 edits, we add 22 points, so 76%
+    - For a level 4 warning, we add 20 points, so 96%
+    - For being reported to AIV, we add 15 points, but we clamp the score to 100, so 100%
+
+    Example three:
+    - User has 1 edit, a 1% good faith likelihood, 95% vandalism likelihood, and 98% reverted likelihood. Level 4 only warning.
+    - First (99 + 95 + 98) / 3 = 97.33%
+    - Then -25% = 72.33%
+    - For 1 edit, we add 24 points, so 96.33%
+    - For a level 4 warning, we add 20 points, so 116.33% - we clamp the score to 100, so 100%
+-->
+
+<script lang="ts">
+  import ClientWorkerCommunicationProvider from "../../../ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider";
+  import type GetUserRevIDs from "../../../worker/functions/enwiki/GetUserRevIDs";
+  import type LiftWingInsights from "../../../worker/functions/enwiki/LiftWingInsights";
+
+  // Take in username and edit count - username must be set but edit count is optional
+  export let username: string;
+  export let editCount: number;
+  export let isReportedToAIV: boolean | undefined;
+  export let warningLevel: number | undefined;
+
+  let initScore: number | undefined = undefined;
+  let aivScore = 0;
+  let warningScore = 0;
+  let classList = "oozeLoading";
+
+  $: if (username) {
+    (async () => {
+      // Get the user's last 3 edits - should be setting too
+      const userEdits =
+        await ClientWorkerCommunicationProvider._.workerFunction<
+          typeof GetUserRevIDs
+        >("enwikiGetUserRevIDs", username, 3);
+
+      // Convert RevIDs into a map of good faith, vandalism, and reverted likelihoods
+      let promiseWaiting: Promise<any>[] = [];
+
+      // For each edit, add a promise which will then return
+      // As we average everything out, the only real logic we need to do is inverting the good faith likelihood
+
+      for (const edit of userEdits) {
+        // Damaging likelihood
+        promiseWaiting.push(
+          ClientWorkerCommunicationProvider._.workerFunction<
+            typeof LiftWingInsights
+          >("enwikiLiftWingInsights", edit, "damaging")
+        );
+
+        // Bad faith likelihood
+        promiseWaiting.push(
+          ClientWorkerCommunicationProvider._.workerFunction<
+            typeof LiftWingInsights
+          >("enwikiLiftWingInsights", edit, "badFaith")
+        );
+
+        // Reverted likelihood
+        promiseWaiting.push(
+          ClientWorkerCommunicationProvider._.workerFunction<
+            typeof LiftWingInsights
+          >("enwikiLiftWingInsights", edit, "revertRisk")
+        );
+      }
+
+      const values = await Promise.all(promiseWaiting);
+
+      // Add everything and average it out
+      let averagePercentage = 0;
+      for (let i = 0; i < values.length; i += 3) {
+        const damaging = values[i];
+        const badFaith = values[i + 1];
+        const revertRisk = values[i + 2];
+
+        // Average the three percentages
+        averagePercentage += (badFaith + damaging + revertRisk) / 3;
+      }
+
+      averagePercentage /= userEdits.length;
+      averagePercentage *= 100;
+
+      if (isNaN(averagePercentage) || averagePercentage === Infinity) {
+        averagePercentage = 0;
+      }
+
+      // Add points based on edit count
+      let points = 0;
+      if (editCount <= 15) {
+        points = 25 - 25 / editCount;
+      } else if (editCount <= 50) {
+        points = 20 - 15 / editCount;
+      } else if (editCount <= 100) {
+        points = 5 - 5 / editCount;
+      } else if (editCount <= 200) {
+        points = 0 - 5 / editCount;
+      } else if (editCount <= 500) {
+        points = -5 - 5 / editCount;
+      } else if (editCount <= 1000) {
+        points = -10 - 5 / editCount;
+      }
+
+      let totalPoints = Math.round(averagePercentage - 25 + points);
+
+      // Cap the score at 100 or 0
+      if (totalPoints > 100) {
+        totalPoints = 100;
+      } else if (totalPoints < 0) {
+        totalPoints = 0;
+      }
+
+      if (isNaN(totalPoints) || totalPoints === Infinity){
+        initScore = 100; // No edits most likely means good faith
+      } else {
+        initScore = totalPoints;
+      }
+
+
+      console.log({
+        averagePercentage,
+        points,
+        totalPoints,
+        username,
+        values,
+      })
+    })();
+  }
+
+  $: if (isReportedToAIV === true) {
+    // An AIV report automatically adds 15 points
+    aivScore = 50;
+  } else {
+    aivScore = 0;
+  }
+
+  $: if (warningLevel !== undefined && warningLevel > 0) {
+    warningScore = warningLevel * 10;
+    // If final warning, add 10 points (in total 50 points for a final warning)
+    if (warningLevel === 4) {
+      warningScore += 10;
+    }
+  } else {
+    warningScore = 0;
+  }
+
+  // Remove the loading class once all the scores are calculated
+  $: if (isReportedToAIV !== undefined && warningLevel !== undefined && initScore !== undefined) {
+    classList = "";
+  }
+
+  $: console.log({ initScore, aivScore, warningScore, isReportedToAIV, warningLevel });
+
+</script>
+
+<span class="oozeUserLiftWingIntel {classList}">
+  <span style="color: hsl(
+    {100 - Math.min(100, (initScore ?? 0) + aivScore + warningScore)},
+    50%,
+    50%
+  );">&bull; Risk:</span>
+  {Math.min(100, (initScore ?? 0) + aivScore + warningScore)}%
+</span>

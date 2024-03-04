@@ -23,8 +23,6 @@
   }
 
   $: if (argString.length > 0) {
-    console.log(argString);
-
     const filterArray = argString.split(",");
     filterMods = {};
     changesWillReset = false;
