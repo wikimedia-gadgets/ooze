@@ -240,9 +240,9 @@ If on a userpage: .u - the last userpage visited will be this one
 
 <!-- Search results -->
 {#if userSearchResults}
-  <div class="oozeUserSearchResults">
+  <div class="oozeSearchResults">
     {#each userSearchResults as user, i}
-      <div class="oozeUserSearchResult" on:click={()=>{
+      <div class="oozeSearchResult" on:click={()=>{
         // On click, set the input value to the username
         dispatch("setInputValue", user.username);
       }} on:keydown={(e) => {
@@ -250,47 +250,47 @@ If on a userpage: .u - the last userpage visited will be this one
           dispatch("setInputValue", user.username);
         } 
       }} role="button" tabindex={i}>
-        <span class="oozeUserSearchResultName">{user.username}</span>
-        <span class="oozeUserSearchResultEditCount">{user.editCount}</span>
+        <span class="oozeSearchResultName">{user.username}</span>
+        <span class="oozeSearchResultEditCount">{user.editCount}</span>
 
         <!-- Warning level -->
         {#if user.warningLevel === undefined}
           <!-- This adds a fade in fade out loading -->
-          <span class="oozeUserSearchResultWarningLevel oozeLoading"
+          <span class="oozeSearchResultWarningLevel oozeLoading"
             >Loading</span
           >
         {:else if user.warningLevel === 0}
-          <span class="oozeUserSearchResultWarningLevel warningLevelNone"
+          <span class="oozeSearchResultWarningLevel warningLevelNone"
             >No Warnings</span
           >
         {:else if user.warningLevel === 1}
-          <span class="oozeUserSearchResultWarningLevel warningLevelNotice"
+          <span class="oozeSearchResultWarningLevel warningLevelNotice"
             >Notice</span
           >
         {:else if user.warningLevel === 2}
-          <span class="oozeUserSearchResultWarningLevel warningLevelCaution"
+          <span class="oozeSearchResultWarningLevel warningLevelCaution"
             >Caution</span
           >
         {:else if user.warningLevel === 3}
-          <span class="oozeUserSearchResultWarningLevel warningLevelWarning"
+          <span class="oozeSearchResultWarningLevel warningLevelWarning"
             >Warning</span
           >
         {:else if user.warningLevel === 4}
           <span
-            class="oozeUserSearchResultWarningLevel warningLevelFinalWarning"
+            class="oozeSearchResultWarningLevel warningLevelFinalWarning"
             >Final Warning</span
           >
         {/if}
 
         {#if user.reportedToAIV === undefined}
           <!-- This adds a fade in fade out loading -->
-          <span class="oozeUserSearchResultReportedToAIV oozeLoading">AIV</span>
+          <span class="oozeSearchResultReportedToAIV oozeLoading">AIV</span>
         {:else if user.reportedToAIV === true}
-          <span class="oozeUserSearchResultReportedToAIV aivReported"
+          <span class="oozeSearchResultReportedToAIV aivReported"
             >AIV Report</span
           >
         {:else}
-          <span class="oozeUserSearchResultReportedToAIV aivNotReported"
+          <span class="oozeSearchResultReportedToAIV aivNotReported"
             >AIV</span
           >
         {/if}
@@ -304,18 +304,18 @@ If on a userpage: .u - the last userpage visited will be this one
         />
 
         {#if Object.keys(user.block).length > 0}
-          <span class="oozeUserSearchResultBlock">Blocked</span>
+          <span class="oozeSearchResultBlock">Blocked</span>
           {#if user.block.blocknocreate === ""}
-            <span class="oozeUserSearchResultBlockExtra"
+            <span class="oozeSearchResultBlockExtra"
               >Page creation blocked</span
             >
           {/if}
 
           {#if user.block.blockemail === ""}
-            <span class="oozeUserSearchResultBlockExtra">Email blocked</span>
+            <span class="oozeSearchResultBlockExtra">Email blocked</span>
           {/if}
 
-          <span class="oozeUserSearchBlockReason">
+          <span class="oozeSearchResultMoreInfo">
             {user.block.blockreason}<br /><br />
             <span>
               <strong>Additional info:</strong> Blocked by {user.block

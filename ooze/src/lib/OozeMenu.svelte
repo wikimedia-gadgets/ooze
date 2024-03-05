@@ -122,12 +122,12 @@
         // and clear the command being typed
         if (argumentNumber < 1) {
           argumentNumber = -1;
+          argumentValues = [];
           commandBeingTyped = undefined;
           commandPalletInputIcon = cdxIconFunctionArgument;
           commandPalletPlaceholder = "Type a command, or use the buttons below";
           return;
         }
-
         argumentNumber--;
         shouldRefetchArgumentValues = true;
       }
@@ -336,7 +336,7 @@
         <!-- If there if a header component for this command, render it -->
         {#if commandBeingTyped?.headerComponent}
           <div class="oozeMenuCommandHeader">
-            <svelte:component this={commandBeingTyped.headerComponent} />
+            <svelte:component this={commandBeingTyped.headerComponent} bind:argumentValues bind:argumentNumber />
           </div>
         {/if}
       </div>

@@ -113,14 +113,6 @@
   padding-bottom: 0.5rem;
 }
 
-.oozeMenuCommandHeader {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  font-weight: lighter;
-}
-
 .oozeMenuChips {
   background-color: white;
   margin-right: 0.25rem;
@@ -257,7 +249,7 @@
   -webkit-text-fill-color: transparent;
 }
 
-.oozeUserSearchResults {
+.oozeSearchResults {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
@@ -269,7 +261,7 @@
   mask-image: linear-gradient(to bottom, white 90%, transparent);
 }
 
-.oozeUserSearchResult {
+.oozeSearchResult {
   display: flex;
   flex-direction: row;
   gap: 0.5em;
@@ -284,50 +276,51 @@
 }
 
 /* On result hover change background */
-.oozeUserSearchResult:hover {
+.oozeSearchResult:hover {
   background-color: var(--background-color-interactive);
 }
 
 /* First search result is what will be sent on tab - highlight with --background-color-progressive */
-.oozeUserSearchResult:first-child {
+.oozeSearchResult:first-child {
   border: 2px solid var(--background-color-progressive);
 }
 
-.oozeUserSearchResultName {
+.oozeSearchResultName {
   font-weight: lighter;
   font-size: large;
 }
 
-.oozeUserSearchResultEditCount {
+.oozeSearchResultEditCount {
   font-size: small;
 }
 
 /* Edit count - before add EC */
-.oozeUserSearchResultEditCount::before {
+.oozeSearchResultEditCount::before {
   content: 'EC: ';
   color: purple;
 }
 
-.oozeUserSearchResultBlock {
+.oozeSearchResultBlock {
   font-size: small;
   color: red;
   font-weight: lighter;
 }
 
-.oozeUserSearchResultBlockExtra {
+.oozeSearchResultBlockExtra {
   font-size: small;
   font-weight: lighter;
 }
 
 /* If more than one extra, add bullet point first */
-.oozeUserSearchResultBlockExtra::before {
+.oozeSearchResultBlockExtra::before {
   content: '• ';
   color: red;
 }
 
-.oozeUserSearchBlockReason {
+.oozeSearchResultMoreInfo {
   font-size: small;
   font-weight: lighter;
+  width: 100%;
 
   /* Clamp to 2 lines */
   display: -webkit-box;
@@ -337,24 +330,18 @@
 }
 
 /* On hover, unclamp */
-.oozeUserSearchResult:hover .oozeUserSearchBlockReason {
+.oozeSearchResult:hover .oozeSearchResultMoreInfo {
   -webkit-line-clamp: unset;
 }
 
-/* Before, text, block reason */
-.oozeUserSearchBlockReason::before {
-  content: 'Reason: ';
-  color: red;
-}
-
-.oozeUserSearchResultReportedToAIV {
+.oozeSearchResultReportedToAIV {
   font-size: small;
   font-weight: lighter;
   color: gray;
 }
 
 /* Before - bulletpoint */
-.oozeUserSearchResultReportedToAIV::before {
+.oozeSearchResultReportedToAIV::before {
   content: '• ';
   color: gray;
 }
@@ -365,51 +352,46 @@
 }
 
 /* aivReported - red bullet */
-.oozeUserSearchResultReportedToAIV.aivReported::before {
+.oozeSearchResultReportedToAIV.aivReported::before {
   content: '• ';
   color: red;
 }
 
 /* aivNotReported - green bullet */
-.oozeUserSearchResultReportedToAIV.aivNotReported::before {
+.oozeSearchResultReportedToAIV.aivNotReported::before {
   content: '• ';
   color: green;
 }
 
 /* Warnings */
-.oozeUserSearchResultWarningLevel {
+.oozeSearchResultWarningLevel {
   font-size: small;
   font-weight: lighter;
 }
 
-/* Before - gray */
-.oozeUserSearchResultWarningLevel.oozeLading::before {
-  content: 'WL: ';
-  color: gray;
-}
 
 /* Warning level none - green */
-.oozeUserSearchResultWarningLevel.warningLevelNone {
+.warningLevelNone {
   color: green;
 }
 
 /* Notice - text colour blue */
-.oozeUserSearchResultWarningLevel.warningLevelNotice {
+.warningLevelNotice {
   color: blue;
 }
 
 /* Caution - orange */
-.oozeUserSearchResultWarningLevel.warningLevelCaution {
+.warningLevelCaution {
   color: orange;
 }
 
 /* Warning - red */
-.oozeUserSearchResultWarningLevel.warningLevelWarning {
+.warningLevelWarning {
   color: red;
 }
 
 /* Final warning dark red */
-.oozeUserSearchResultWarningLevel.warningLevelFinalWarning {
+.warningLevelFinalWarning {
   color: rgb(102, 4, 4);
 }
 
@@ -417,3 +399,15 @@
   font-size: small;
   font-weight: lighter;
 }
+
+.oozeSearchResult.searchResultCol {
+  flex-direction: column;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+
+.oozeSearchError {
+  border: 2px solid --border-color-notice;
+  padding: 0.5rem;
+}
+

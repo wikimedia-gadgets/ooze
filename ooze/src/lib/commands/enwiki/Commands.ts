@@ -10,6 +10,9 @@ import {
 import SettingsUi from "./SettingsUI.svelte";
 import SqlWarning from "../settings/SqlWarning.svelte";
 import UserSearchIntel from "./intelligence/UserSearchIntel.svelte";
+import UwSearch from "./uwSearch.svelte";
+import UwPreview from "./UwPreview.svelte";
+import enwikiWarnings from "./data/Warnings";
 
 export const Commands: Record<string, Command> = {
     // Ooze settings
@@ -84,7 +87,15 @@ export const Commands: Record<string, Command> = {
                 type: CommandArgumentType.warningTemplate,
                 icon: cdxIconTemplateAdd,
                 placeholder: "Type to search, or select from the list...",
-                validate: () => true,
+                helperElement: UwSearch,
+                validate: v => {
+                    // Value must be in enwiki warnings
+                    for (const warning of Object.values(enwikiWarnings.warnings)) {
+                        if (warning.template === v) return true;
+                    }
+                    
+                    return "Template not found.";
+                },
             },
 
             // Warning level
@@ -120,5 +131,6 @@ export const Commands: Record<string, Command> = {
             },
         ],
         validate: () => true,
+        headerComponent: UwPreview,
     },
 };

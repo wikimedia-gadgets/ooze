@@ -3,6 +3,8 @@
 // And https://gitlab.wikimedia.org/repos/10nm/ultraviolet/-/blob/dev/src/mediawiki/warn/Warnings.ts
 // Copyright Ultraviolet contributors
 
+import exp from "constants";
+
 type WarningFieldVisibility = "required" | "disabled" | "optional";
 
 interface Warnings {
@@ -12,6 +14,9 @@ interface Warnings {
         template: string;
         note?: string;
         keywords?: string[];
+        category: string;
+        type: "tiered" | "single" | "policy";
+        levels?: (1 | 2 | 3 | 4 | 5)[];
     
         relatedPage?:
             | WarningFieldVisibility
@@ -30,7 +35,7 @@ interface Warnings {
     >
 }
 
-const enwikiWarnings = {
+const enwikiWarnings: Warnings = {
     "categories": {
         "common": {
             "label": "Common warnings"
@@ -70,10 +75,6 @@ const enwikiWarnings = {
                 4,
                 5
             ],
-            "summary": {
-                "1": "Unconstructive editing",
-                "2": "Unconstructive editing"
-            }
         },
         "disruptive": {
             "name": "Disruptive editing",
@@ -86,10 +87,6 @@ const enwikiWarnings = {
                 3,
                 4
             ],
-            "summary": {
-                "1": "Unconstructive editing",
-                "2": "Unconstructive editing"
-            }
         },
         "test": {
             "name": "Editing tests",
@@ -320,9 +317,6 @@ const enwikiWarnings = {
                 4,
                 5
             ],
-            "summary": {
-                "1": "Adding inappropriate external links"
-            }
         },
         "plotsum": {
             "name": "Addition of unnecessary plot details",
@@ -861,18 +855,16 @@ const enwikiWarnings = {
             "type": "policy"
         },
         "ew": {
-            "name": "Edit warring (stronger wording)",
+            "name": "Edit warring (Warning)",
             "category": "policy",
             "template": "uw-ew",
             "type": "policy",
-            "summary": "Edit warring"
         },
         "ewsoft": {
-            "name": "Edit warring (softer wording for newcomers)",
+            "name": "Edit warring (Notice for new editors)",
             "category": "policy",
             "template": "uw-ewsoft",
             "type": "policy",
-            "summary": "Edit warring"
         },
         "hijacking": {
             "name": "Hijacking articles",
@@ -959,3 +951,5 @@ const enwikiWarnings = {
         }
     },
 };
+
+export default enwikiWarnings;
