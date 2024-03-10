@@ -336,7 +336,12 @@
         <!-- If there if a header component for this command, render it -->
         {#if commandBeingTyped?.headerComponent}
           <div class="oozeMenuCommandHeader">
-            <svelte:component this={commandBeingTyped.headerComponent} bind:argumentValues bind:argumentNumber />
+            <svelte:component
+              this={commandBeingTyped.headerComponent}
+              bind:argumentValues
+              bind:argumentNumber
+              bind:commandInputValue
+            />
           </div>
         {/if}
       </div>
