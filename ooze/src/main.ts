@@ -3,6 +3,11 @@ import App from './App.svelte'
 import ClientWorkerCommunicationProvider from './lib/ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider';
 import type Heartbeat from './lib/worker/functions/Heartbeat';
 
+import { CanUseOoze } from "./lib/commands/RestrictFeatureLevel";
+
+// Perms, for use globally
+new CanUseOoze();
+
 // Add ooze to the DOM
 // Create ooze div
 const ooze = document.createElement('div');
@@ -41,6 +46,8 @@ setInterval(async () => {
 const app = new App({
   target: document.getElementById('ooze') as HTMLElement,
 });
+
+
 
 export default app;
 export { oozeID, oozeCom };

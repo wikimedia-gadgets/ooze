@@ -7,32 +7,33 @@ import exp from "constants";
 
 type WarningFieldVisibility = "required" | "disabled" | "optional";
 
+export interface Warning {
+    name: string;
+    template: string;
+    note?: string;
+    keywords?: string[];
+    category: string;
+    type: "tiered" | "single" | "policy";
+    levels?: (1 | 2 | 3 | 4 | 5)[];
+
+    relatedPage?:
+    | WarningFieldVisibility
+    | {
+        visibility?: WarningFieldVisibility;
+        label?: string;
+        recentPages?: boolean;
+    };
+    additionalText?:
+    | WarningFieldVisibility
+    | {
+        visibility?: WarningFieldVisibility;
+        label?: string;
+    };
+}
+
 interface Warnings {
     categories: Record<string, { label: string }>;
-    warnings: Record<string, {
-        name: string;
-        template: string;
-        note?: string;
-        keywords?: string[];
-        category: string;
-        type: "tiered" | "single" | "policy";
-        levels?: (1 | 2 | 3 | 4 | 5)[];
-    
-        relatedPage?:
-            | WarningFieldVisibility
-            | {
-                  visibility?: WarningFieldVisibility;
-                  label?: string;
-                  recentPages?: boolean;
-              };
-        additionalText?:
-            | WarningFieldVisibility
-            | {
-                  visibility?: WarningFieldVisibility;
-                  label?: string;
-              };
-    }
-    >
+    warnings: Record<string, Warning>;
 }
 
 const enwikiWarnings: Warnings = {

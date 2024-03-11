@@ -16,6 +16,9 @@
   import type { Command } from "./commands/Command";
   import CodexChip from "./vue/CodexChip.svelte";
   import OozeUiWrapper from "./OozeUIWrapper.svelte";
+  import { CanUseOoze } from "./commands/RestrictFeatureLevel";
+
+  const { DemoModeEnabled } = CanUseOoze._;
 
   const oozeVer = APP_VERSION;
 
@@ -45,6 +48,9 @@
   // If this is set, it will override the input value when tab is pressed
   let queuedOverrideInputValue: string | null = "";
 
+  // Has just gone back? This means when force advance, we go back instead of forward
+  let justWentBack = false;
+
   $: if (commandBeingTyped && commandBeingTyped.arguments) {
     commandPalletInputIcon =
       commandBeingTyped.arguments[argumentNumber].icon ??
@@ -63,8 +69,6 @@
 
   // On command input change
   $: if (commandInputValue !== "") {
-    // Todo: implement intelligent command matching
-
     // Reset error
     currentArgumentValidationError = "";
   }
@@ -110,6 +114,72 @@
     textInput?.querySelector("input")?.focus();
   }
 
+  function advanceParam() {
+    justWentBack = false;
+
+    // If there are is a queued override, use it (i.e. shortcuts)
+    if (queuedOverrideInputValue) {
+      commandInputValue = queuedOverrideInputValue;
+      queuedOverrideInputValue = null;
+    }
+
+    switch (argumentNumber) {
+      case -1:
+        const command = Commands[commandInputValue.trim().toLowerCase()];
+        // If argument number is -1, we are waiting for an argument
+        if (command) {
+          firstCommandNotFound = false;
+          commandBeingTyped = command;
+          commandInputValue = "";
+          argumentNumber = 0;
+        } else {
+          firstCommandNotFound = true;
+        }
+        break;
+      default:
+        // Move on - before doing so, ensure the argument is valid
+        if (commandBeingTyped?.arguments) {
+          const validation =
+            commandBeingTyped.arguments[argumentNumber].validate(
+              commandInputValue
+            );
+
+          // Validation error? Set the error and return
+          if (validation !== true) {
+            currentArgumentValidationError = validation;
+            return;
+          }
+        }
+
+        // Set the argument value
+        argumentValues[argumentNumber] = commandInputValue.trim();
+        if (
+          argumentNumber + 1 <
+          (commandBeingTyped?.arguments?.length as number)
+        )
+          argumentNumber++;
+        commandInputValue = "";
+        break;
+    }
+  }
+
+  function goBackParam() {
+    // If the current argument number is 0, set the argument number to -1
+    // and clear the command being typed
+    queuedOverrideInputValue = null;
+    if (argumentNumber < 1) {
+      argumentNumber = -1;
+      argumentValues = [];
+      commandBeingTyped = undefined;
+      commandPalletInputIcon = cdxIconFunctionArgument;
+      commandPalletPlaceholder = "Type a command, or use the buttons below";
+      return;
+    }
+    justWentBack = true;
+    argumentNumber--;
+    shouldRefetchArgumentValues = true;
+  }
+
   // Handle when backspace, tab or enter is pressed on the text input
   const handleCommandInputKey = (e: KeyboardEvent) => {
     // If backspace pressed, ensure the input is already empty
@@ -117,70 +187,14 @@
     if (e.key === "Backspace") {
       if (commandInputValue === "") {
         e.preventDefault();
-
-        // If the current argument number is 0, set the argument number to -1
-        // and clear the command being typed
-        if (argumentNumber < 1) {
-          argumentNumber = -1;
-          argumentValues = [];
-          commandBeingTyped = undefined;
-          commandPalletInputIcon = cdxIconFunctionArgument;
-          commandPalletPlaceholder = "Type a command, or use the buttons below";
-          return;
-        }
-        argumentNumber--;
-        shouldRefetchArgumentValues = true;
+        goBackParam();
       }
     }
 
     // If tab pressed we move onto the next arg
     if (e.key === "Tab" || e.key === "Enter") {
       e.preventDefault();
-
-      // If there are is a queued override, use it (i.e. shortcuts)
-      if (queuedOverrideInputValue) {
-        commandInputValue = queuedOverrideInputValue;
-        queuedOverrideInputValue = null;
-      }
-
-      switch (argumentNumber) {
-        case -1:
-          const command = Commands[commandInputValue.trim().toLowerCase()];
-          // If argument number is -1, we are waiting for an argument
-          if (command) {
-            firstCommandNotFound = false;
-            commandBeingTyped = command;
-            commandInputValue = "";
-            argumentNumber = 0;
-          } else {
-            firstCommandNotFound = true;
-          }
-          break;
-        default:
-          // Move on - before doing so, ensure the argument is valid
-          if (commandBeingTyped?.arguments) {
-            const validation =
-              commandBeingTyped.arguments[argumentNumber].validate(
-                commandInputValue
-              );
-
-            // Validation error? Set the error and return
-            if (validation !== true) {
-              currentArgumentValidationError = validation;
-              return;
-            }
-          }
-
-          // Set the argument value
-          argumentValues[argumentNumber] = commandInputValue.trim();
-          if (
-            argumentNumber + 1 <
-            (commandBeingTyped?.arguments?.length as number)
-          )
-            argumentNumber++;
-          commandInputValue = "";
-          break;
-      }
+      advanceParam();
     }
   };
 
@@ -195,6 +209,16 @@
 
   function helperResetInputValue() {
     queuedOverrideInputValue = null;
+  }
+
+  function helperForceAdvanceParam() {
+    if (justWentBack) {
+      justWentBack = false;
+      goBackParam(); // Don't let an immediate advance happen after going back
+      return;
+    }
+
+    advanceParam();
   }
 </script>
 
@@ -253,9 +277,13 @@
               {/each}
             {/if}
           </div>
-        {:else}
-          <!-- Version when no chips to show -->
-          <p class="oozeMenuTitle">v{oozeVer}</p>
+        {:else}          
+          <p class="oozeMenuTitle">
+            v{oozeVer}
+            {#if DemoModeEnabled}
+              <span class="oozeDemoMode">Demo Mode</span>
+            {/if}
+          </p>
         {/if}
 
         <div class="oozeButtons">
@@ -296,15 +324,29 @@
 
       <!-- Content -->
       <div class="oozeMenuContent">
+         <!-- If there if a header component for this command, render it -->
+         {#if commandBeingTyped?.headerComponent}
+         <div class="oozeMenuCommandHeader">
+           <svelte:component
+             this={commandBeingTyped.headerComponent}
+             bind:argumentValues
+             bind:argumentNumber
+             bind:commandInputValue
+           />
+         </div>
+       {/if}
+
         <!-- If there is a helper component for this argument, render it -->
         {#if commandBeingTyped?.arguments && commandBeingTyped.arguments[argumentNumber]?.helperElement}
           <div class="oozeMenuCommandHelper">
             <svelte:component
               this={commandBeingTyped.arguments[argumentNumber].helperElement}
               bind:commandInputValue
+              {argumentValues}
               on:overrideInputValue={helperOverrideInputValue}
               on:setInputValue={helperSetInputValue}
               on:resetInputValue={helperResetInputValue}
+              on:forceAdvanceParam={helperForceAdvanceParam}
             />
           </div>
         {/if}
@@ -333,18 +375,13 @@
           </CodexMessage>
         {/if}
 
-        <!-- If there if a header component for this command, render it -->
-        {#if commandBeingTyped?.headerComponent}
-          <div class="oozeMenuCommandHeader">
-            <svelte:component
-              this={commandBeingTyped.headerComponent}
-              bind:argumentValues
-              bind:argumentNumber
-              bind:commandInputValue
-            />
-          </div>
-        {/if}
       </div>
+
+      {#if DemoModeEnabled}
+        <span class="oozeShortCutHint">
+          <strong>Test OOZE! Your changes won't be saved.</strong>
+        </span>
+      {/if}
     </div>
   {/if}
 </OozeUiWrapper>

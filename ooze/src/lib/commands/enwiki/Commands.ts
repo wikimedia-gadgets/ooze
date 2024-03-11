@@ -6,13 +6,15 @@ import {
     cdxIconSpecialPages,
     cdxIconSpeechBubbleAdd,
     cdxIconSearch
-  } from "@wikimedia/codex-icons";
+} from "@wikimedia/codex-icons";
 import SettingsUi from "./SettingsUI.svelte";
 import SqlWarning from "../settings/SqlWarning.svelte";
 import UserSearchIntel from "./intelligence/UserSearchIntel.svelte";
 import UwSearch from "./uwSearch.svelte";
 import UwPreview from "./UwPreview.svelte";
 import enwikiWarnings from "./data/Warnings";
+import UserWarningLevelAdvancer from "./intelligence/UserWarningLevelAdvancer.svelte";
+import RestrictFeatureLevel from "../RestrictFeatureLevel";
 
 export const Commands: Record<string, Command> = {
     // Ooze settings
@@ -93,7 +95,7 @@ export const Commands: Record<string, Command> = {
                     for (const warning of Object.values(enwikiWarnings.warnings)) {
                         if (warning.template === v) return true;
                     }
-                    
+
                     return "Template not found.";
                 },
             },
@@ -104,8 +106,17 @@ export const Commands: Record<string, Command> = {
                 description: "The level of the warning.",
                 type: CommandArgumentType.plainText,
                 icon: cdxIconNotice,
-                placeholder: "Type to search, or select from the list...",
-                validate: () => true,
+                placeholder: "Leave blank for automatic level.",
+                validate: v => {
+                    if (v === "") {
+                        // Ensure EC before allowing automatic level
+                        if (RestrictFeatureLevel(["extendedconfirmed"])) return "Auto: EC required.";
+                    }
+                    if (isNaN(Number(v))) return "Invalid number.";
+
+                    return true;
+                },
+                helperElement: UserWarningLevelAdvancer,
             },
 
             // Associated page
