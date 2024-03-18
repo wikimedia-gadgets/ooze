@@ -447,3 +447,18 @@ button.oozeSearchResultWarningLevel.active {
   max-height: 20rem;
   border: 2px solid var(--border-color-notice);
 }
+
+.oozeHidden {
+  display: none;
+}
+
+.oozeMenuEasyMode-CommandTitle {
+  font-size: large;
+  font-weight: bold;
+  padding: 0.5rem;
+}
+
+.oozeMenuEasyMode-CommandDescription {
+  font-size: small;
+  padding: 0.5rem;
+}

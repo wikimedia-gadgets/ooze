@@ -51,6 +51,9 @@
   // Has just gone back? This means when force advance, we go back instead of forward
   let justWentBack = false;
 
+  // Easy mode - for click/touch menu
+  let easyModeEnabled = false;
+
   $: if (commandBeingTyped && commandBeingTyped.arguments) {
     commandPalletInputIcon =
       commandBeingTyped.arguments[argumentNumber].icon ??
@@ -114,6 +117,7 @@
     textInput?.querySelector("input")?.focus();
   }
 
+  // Advanced mode only
   function advanceParam() {
     justWentBack = false;
 
@@ -129,11 +133,13 @@
         // If argument number is -1, we are waiting for an argument
         if (command) {
           firstCommandNotFound = false;
+          easyModeEnabled = false;
           commandBeingTyped = command;
           commandInputValue = "";
           argumentNumber = 0;
         } else {
           firstCommandNotFound = true;
+          easyModeEnabled = false;
         }
         break;
       default:
@@ -168,6 +174,7 @@
     // and clear the command being typed
     queuedOverrideInputValue = null;
     if (argumentNumber < 1) {
+      easyModeEnabled = false; // If we're going back, beyond end, exit easy mode
       argumentNumber = -1;
       argumentValues = [];
       commandBeingTyped = undefined;
@@ -238,7 +245,7 @@
     <div class="cdx-card oozeMenu">
       <!-- Header/footer (at bottom, or on top on mobile) -->
       <div class="oozeMenuFooter">
-        {#if commandBeingTyped}
+        {#if !easyModeEnabled && commandBeingTyped}
           <!-- Chips - show arguments. First one always has a command icon -->
           <div class="oozeMenuChips">
             <CodexChip
@@ -277,7 +284,7 @@
               {/each}
             {/if}
           </div>
-        {:else}          
+        {:else}
           <p class="oozeMenuTitle">
             v{oozeVer}
             {#if DemoModeEnabled}
@@ -324,17 +331,17 @@
 
       <!-- Content -->
       <div class="oozeMenuContent">
-         <!-- If there if a header component for this command, render it -->
-         {#if commandBeingTyped?.headerComponent}
-         <div class="oozeMenuCommandHeader">
-           <svelte:component
-             this={commandBeingTyped.headerComponent}
-             bind:argumentValues
-             bind:argumentNumber
-             bind:commandInputValue
-           />
-         </div>
-       {/if}
+        <!-- If there if a header component for this command, render it -->
+        {#if commandBeingTyped?.headerComponent}
+          <div class="oozeMenuCommandHeader">
+            <svelte:component
+              this={commandBeingTyped.headerComponent}
+              bind:argumentValues
+              bind:argumentNumber
+              bind:commandInputValue
+            />
+          </div>
+        {/if}
 
         <!-- If there is a helper component for this argument, render it -->
         {#if commandBeingTyped?.arguments && commandBeingTyped.arguments[argumentNumber]?.helperElement}
@@ -359,12 +366,13 @@
             placeholder: commandPalletPlaceholder,
             size: "large",
             "aria-label": "OOZE Command Pallet",
-            class: "oozeCommandPallet",
+            class: "oozeCommandPallet" + (easyModeEnabled ? " oozeHidden" : ""),
             status: firstCommandNotFound ? "error" : "default",
             onkeydown: handleCommandInputKey,
           }}
           bind:value={commandInputValue}
         />
+
         {#if firstCommandNotFound}
           <CodexMessage
             props={{
@@ -374,13 +382,65 @@
             Enter a valid command from the list below
           </CodexMessage>
         {/if}
-
       </div>
 
       {#if DemoModeEnabled}
         <span class="oozeShortCutHint">
           <strong>Test OOZE! Your changes won't be saved.</strong>
         </span>
+      {/if}
+
+      <!-- Easy Mode Menu - options to select -->
+      <div class="oozeMenuEasyOptions">
+        {#each Object.values(Commands) as command}
+          <button
+            class="oozeMenuEasyOption"
+            on:click={() => {
+              commandBeingTyped = command;
+              argumentNumber = 0;
+              easyModeEnabled = true;
+            }}
+          >
+            {command.name}
+          </button>
+        {/each}
+      </div>
+
+      {#if easyModeEnabled && commandBeingTyped}
+        <div class="oozeMenuEasyMode">
+          <p class="oozeMenuEasyMode-CommandTitle">
+            {commandBeingTyped.name}
+          </p>
+          <p class="oozeMenuEasyMode-Description">
+            {commandBeingTyped.description}
+          </p>
+
+          <div class="oozeMenuEasyMode-Arguments">
+            {#each commandBeingTyped.arguments ?? [] as arg}
+              <div class="oozeMenuEasyMode-Argument">
+                <p class="oozeMenuEasyMode-ArgumentTitle">
+                  {arg.name}
+                </p>
+                <p class="oozeMenuEasyMode-ArgumentDescription">
+                  {arg.description}
+                </p>
+
+                <CodexTextInput
+                  bind:value={argumentValues[argumentNumber]}
+                  props={{
+                    startIcon: arg.icon ?? undefined,
+                    size: "large",
+                    placeholder: arg.placeholder,
+                    status:
+                      currentArgumentValidationError !== ""
+                        ? "error"
+                        : "default",
+                  }}
+                />
+              </div>
+            {/each}
+          </div>
+        </div>
       {/if}
     </div>
   {/if}
