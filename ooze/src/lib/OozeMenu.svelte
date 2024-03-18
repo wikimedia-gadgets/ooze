@@ -373,7 +373,7 @@
               class: "oozeCommandPalletError",
             }}
           >
-            Enter a valid command from the list below
+            Enter a valid command
           </CodexMessage>
         {/if}
       </div>
