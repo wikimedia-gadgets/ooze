@@ -18,7 +18,7 @@ export default async function GetUserWarningLevel(username: string): Promise<0 |
     };
 
     // Fetch the page
-    const json = await ClientFetch._.cFetchJson(`https://en.wikipedia.org/w/api.php?${new URLSearchParams(params as any).toString()}`);
+    const json = await ClientFetch._.cFetchJson(`/w/api.php?${new URLSearchParams(params as any).toString()}`);
 
     if (json.error) {
         // Usually means the user talk page doesn't exist

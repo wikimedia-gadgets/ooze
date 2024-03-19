@@ -10,7 +10,7 @@ export default async function LastEditorsOnPage(page: string, limit: number = 10
         throw new Error("Limit cannot be more than 10");
     }
 
-    // Fetch https://en.wikipedia.org/w/api.php?action=query&prop=revisions&titles=MediaWiki&rvlimit=5&rvprop=user&format=json
+    // Fetch /w/api.php?action=query&prop=revisions&titles=MediaWiki&rvlimit=5&rvprop=user&format=json
     // Ensure the params are prepared first
     const params: ApiQueryRevisionsParams = {
         action: "query",
@@ -24,7 +24,7 @@ export default async function LastEditorsOnPage(page: string, limit: number = 10
     // Convert the params to a query string
     const queryString = new URLSearchParams(params as any).toString();
     // Fetch the data
-    const json = await ClientFetch._.cFetchJson(`https://en.wikipedia.org/w/api.php?${queryString}`);
+    const json = await ClientFetch._.cFetchJson(`/w/api.php?${queryString}`);
 
     // Get the revisions
     const firstItem = json.query.pages[Object.keys(json.query.pages)[0]];

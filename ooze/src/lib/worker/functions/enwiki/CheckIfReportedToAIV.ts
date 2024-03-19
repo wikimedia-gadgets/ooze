@@ -17,7 +17,7 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
     };
 
     // Fetch the page
-    const json = await ClientFetch._.cFetchJson(`https://en.wikipedia.org/w/api.php?${new URLSearchParams(params as any).toString()}`);
+    const json = await ClientFetch._.cFetchJson(`/w/api.php?${new URLSearchParams(params as any).toString()}`);
 
     const pageText: string = json.parse.wikitext["*"];
 

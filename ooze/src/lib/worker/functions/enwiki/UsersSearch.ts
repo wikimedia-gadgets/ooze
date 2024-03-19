@@ -35,7 +35,7 @@ export default async function UsersSearch(usernamePrefix: string, limit: number 
     const queryString = new URLSearchParams(params as any).toString();
 
     // Fetch the data
-    const json = await ClientFetch._.cFetchJson(`https://en.wikipedia.org/w/api.php?${queryString}`);
+    const json = await ClientFetch._.cFetchJson(`/w/api.php?${queryString}`);
 
     // This is not present on error
     if (json?.batchcomplete !== "") {
