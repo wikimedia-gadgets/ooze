@@ -8,9 +8,11 @@ import GetUserRevIDs from "./functions/enwiki/GetUserRevIDs";
 import GetUserWarningLevel from "./functions/enwiki/GetUserWarningLevel";
 import LastEditorsOnPage from "./functions/enwiki/LastEditorsOnPage";
 import LiftWingInsights from "./functions/enwiki/LiftWingInsights";
+import RegisterPageVisit from "./functions/RegisterPageVisit";
 import UsersSearch from "./functions/enwiki/UsersSearch";
 import ClientFetch from "./proxies/ClientFetch";
 import MediaWikiProxy from "./proxies/MediaWikiProxy";
+import GetPageVisitHistory from "./functions/PageVisitHistory";
 
 console.log("[OOZE] Ooze worker loaded [sharedworker]");
 
@@ -39,6 +41,8 @@ const wfh = new WorkerFunctionHandler({
     "enwikiGetUserWarningLevel": GetUserWarningLevel,
     "enwikiLiftWingInsights": LiftWingInsights,
     "enwikiGetUserRevIDs": GetUserRevIDs,
+    "registerPageVisit": RegisterPageVisit,
+    "pageVisitHistory": GetPageVisitHistory,
 });
 
 (async () => {

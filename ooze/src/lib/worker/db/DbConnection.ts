@@ -25,7 +25,7 @@ export default class OozeDb {
         db.run(dbUserActionHistorySchema);
         db.run(dbUserCacheSchema);
 
-        db.run("INSERT INTO Configuration (key, value) VALUES ('version', '1')")
+        db.run("INSERT INTO Configuration (key, value) VALUES ('version', ?)", [APP_VERSION]);
 
         console.log(db.exec("SELECT * FROM Configuration"));
 
