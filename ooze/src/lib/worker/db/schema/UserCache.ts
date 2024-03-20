@@ -15,83 +15,23 @@ ORES Average Good faith: number (0-1)
 ORES Average Damaging: number (0-1)
 */
 
-import type { ITable } from "jsstore";
 
-const dbUserCacheSchema: ITable = {
-    name : 'UserCache',
-    columns: {
-        // The user of the warning
-        username: {
-            primaryKey: true,
-            notNull: true,
-            dataType: 'string',
-        },
-        // Last updated to make sure the cache is not stale
-        lastUpdated: {
-            notNull: true,
-            dataType: 'number', // the typing on this is useless
-        },
-        // Highest warning level
-        highestWarningLevel: {
-            notNull: true,
-            dataType: 'number',
-        },
+const dbUserCacheSchemaSQL = `
+CREATE TABLE IF NOT EXISTS UserCache (
+    username TEXT PRIMARY KEY NOT NULL,
+    lastUpdated INTEGER NOT NULL,
+    highestWarningLevel INTEGER NOT NULL,
+    lastWarningTimestamp INTEGER NOT NULL,
+    isReportedToAiv BOOLEAN NOT NULL,
+    blocked BOOLEAN NOT NULL,
+    blockedBy TEXT,
+    blockedTimestamp INTEGER,
+    blockedReason TEXT,
+    hasBeenBlockedBefore BOOLEAN NOT NULL,
+    userRights TEXT,
+    oresAverageGoodFaith REAL,
+    oresAverageDamaging REAL
+);
+`;
 
-        // Last warning timestamp
-        lastWarningTimestamp: {
-            notNull: true,
-            dataType: 'number',
-        },
-
-        // Is reported to AIV
-        isReportedToAiv: {
-            notNull: true,
-            dataType: 'boolean',
-        },
-
-        // Is blocked
-        blocked: {
-            notNull: true,
-            dataType: 'boolean',
-        },
-
-
-        // Blocked by
-        blockedBy: {
-            dataType: 'string',
-        },
-
-        // Blocked timestamp
-        blockedTimestamp: {
-            dataType: 'number',
-        },
-
-        // Blocked reason
-        blockedReason: {
-            dataType: 'string',
-        },
-
-        // Has been blocked before
-        hasBeenBlockedBefore: {
-            notNull: true,
-            dataType: 'boolean',
-        },
-
-        // User rights (json encoded string)
-        userRights: {
-            dataType: 'string',
-        },
-
-        // ORES average good faith
-        oresAverageGoodFaith: {
-            dataType: 'number',
-        },
-
-        // ORES average damaging
-        oresAverageDamaging: {
-            dataType: 'number',
-        },
-    }
-};
-
-export default dbUserCacheSchema;
+export default dbUserCacheSchemaSQL;

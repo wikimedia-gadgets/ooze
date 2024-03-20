@@ -1,19 +1,8 @@
-import type { ITable } from "jsstore";
+const dbConfigurationSchemaSql = `
+CREATE TABLE IF NOT EXISTS Configuration (
+    key TEXT PRIMARY KEY NOT NULL,
+    value TEXT
+);
+`;
 
-const dbConfigurationSchema: ITable = {
-    name : 'Configuration',
-    columns: {
-        // Configuration key
-        key: {
-            primaryKey: true,
-            notNull: true,
-            dataType: 'string',
-        },
-        // Configuration value - can be null if not set
-        value: {
-            dataType: 'string',
-        },
-    }
-};
-
-export default dbConfigurationSchema;
+export default dbConfigurationSchemaSql;

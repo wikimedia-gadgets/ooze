@@ -21,9 +21,10 @@
     "vite-plugin-mkcert": "^1.17.1"
   },
   "dependencies": {
+    "@types/sql.js": "^1.4.9",
     "@wikimedia/codex": "^1.2.0",
     "@wikimedia/codex-design-tokens": "^1.2.0",
-    "jsstore": "^4.7.2",
+    "sql.js": "^1.10.2",
     "types-mediawiki": "^1.4.0",
     "vue3-webcomponent-wrapper": "^0.2.0"
   }
