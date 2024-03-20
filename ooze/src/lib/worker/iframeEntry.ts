@@ -3,7 +3,7 @@ import oozeWorker from "./oozeWorker?sharedworker";
 const oozeVer = APP_VERSION;
 
 // Entry for worker iframe
-console.log(`OOZEworker v${oozeVer} - copyright 2024 Ed Englefield`);
+console.log(`OOZEworker [frame] v${oozeVer} - copyright 2024 Ed Englefield`);
 
 // Create a new worker
 const worker = new oozeWorker();
@@ -18,8 +18,7 @@ worker.port.addEventListener("message", e => {
 });
 
 worker.onerror = (e) => {
-    console.error(`Error from worker`);
-    console.error(e);
+    console.error(`[iframeEntry OOZE] Error from worker, maybe broken?`, e);
 };
 
 worker.port.start();

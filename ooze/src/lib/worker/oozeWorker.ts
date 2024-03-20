@@ -12,7 +12,7 @@ import UsersSearch from "./functions/enwiki/UsersSearch";
 import ClientFetch from "./proxies/ClientFetch";
 import MediaWikiProxy from "./proxies/MediaWikiProxy";
 
-console.log("Ooze worker loaded");
+console.log("[OOZE] Ooze worker loaded [sharedworker]");
 
 interface SharedWorkerGlobalScope {
     onconnect: (event: MessageEvent) => void;

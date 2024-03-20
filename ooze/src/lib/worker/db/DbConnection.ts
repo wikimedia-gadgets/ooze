@@ -9,7 +9,14 @@ export default class OozeDb {
 
     // Create the global connection
     public async setGlobalConnection() {
-        const sql = await initSqlJs();
+        console.log("[OozeDb] Initializing database");
+        
+        const sql = await initSqlJs({
+            locateFile: (url, dir) => {
+                console.log(url, dir);
+                return '/sql-wasm.wasm';
+            },
+        });
         const db = new sql.Database();
         OozeDb.connection = db;
         // Create the tables
@@ -17,6 +24,10 @@ export default class OozeDb {
         db.run(dbPageVisitHistorySchema);
         db.run(dbUserActionHistorySchema);
         db.run(dbUserCacheSchema);
+
+        db.run("INSERT INTO Configuration (key, value) VALUES ('version', '1')")
+
+        console.log(db.exec("SELECT * FROM Configuration"));
 
         console.log("[OozeDb] Database initialized");
     }
