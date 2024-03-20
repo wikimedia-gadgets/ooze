@@ -3,7 +3,7 @@
 // This allows for commands like .lw but also to step back like .lw 2
 
 
-const dbUserActionHistorySchemaSQL = `
+const dbUserActionHistorySchemaSQL = `--sql
 CREATE TABLE IF NOT EXISTS UserActionHistory (
     username TEXT PRIMARY KEY NOT NULL,
     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),

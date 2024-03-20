@@ -10,7 +10,9 @@ export default async function RegisterPageVisit(pageName: string): Promise<boole
         return false;
     }
 
-    db.run("INSERT OR REPLACE INTO PageVisitHistory (pageName, timestamp) VALUES (?, ?)", [pageName, Math.floor(Date.now() / 1000)]);
+    db.run(`--sql
+    INSERT OR REPLACE INTO PageVisitHistory (pageName, timestamp) VALUES (?, ?)
+    `, [pageName, Math.floor(Date.now() / 1000)]);
 
     return true;
 }

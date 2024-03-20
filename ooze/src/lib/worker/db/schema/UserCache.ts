@@ -16,7 +16,7 @@ ORES Average Damaging: number (0-1)
 */
 
 
-const dbUserCacheSchemaSQL = `
+const dbUserCacheSchemaSQL = `--sql
 CREATE TABLE IF NOT EXISTS UserCache (
     username TEXT PRIMARY KEY NOT NULL,
     lastUpdated INTEGER NOT NULL,

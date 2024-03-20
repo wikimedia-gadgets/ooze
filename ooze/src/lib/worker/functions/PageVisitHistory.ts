@@ -10,7 +10,9 @@ export default async function GetPageVisitHistory(limit: number = 10, offset: nu
         return [];
     }
 
-    const result = db.exec("SELECT * FROM PageVisitHistory ORDER BY timestamp DESC LIMIT ? OFFSET ?", [limit, offset]);
+    const result = db.exec(`--sql
+    SELECT * FROM PageVisitHistory ORDER BY timestamp DESC LIMIT ? OFFSET ?
+    `, [limit, offset]);
     if (result.length === 0) {
         return [];
     }

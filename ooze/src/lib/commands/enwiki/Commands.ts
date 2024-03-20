@@ -15,6 +15,7 @@ import UwPreview from "./UwPreview.svelte";
 import enwikiWarnings from "./data/Warnings";
 import UserWarningLevelAdvancer from "./intelligence/UserWarningLevelAdvancer.svelte";
 import RestrictFeatureLevel from "../RestrictFeatureLevel";
+import PageSearchIntel from "./intelligence/PageSearchIntel.svelte";
 
 export const Commands: Record<string, Command> = {
     // Ooze settings
@@ -128,6 +129,7 @@ export const Commands: Record<string, Command> = {
                 optional: true,
                 icon: cdxIconSpecialPages,
                 placeholder: "Enter a page name...",
+                helperElement: PageSearchIntel,
             },
 
             // Additional comments
