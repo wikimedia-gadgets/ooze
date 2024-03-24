@@ -14,5 +14,8 @@ export default async function RegisterPageVisit(pageName: string): Promise<boole
     INSERT OR REPLACE INTO PageVisitHistory (pageName, timestamp) VALUES (?, ?)
     `, [pageName, Math.floor(Date.now() / 1000)]);
 
+    // Save changes
+    OozeDb.persistChanges();
+
     return true;
 }

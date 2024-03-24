@@ -11,15 +11,19 @@
   let pendingChange: string | null = null;
   let shortcutTitle: string | null = null;
 
-  let lastPage = ClientWorkerCommunicationProvider._.workerFunction<typeof GetPageVisitHistory>('pageVisitHistory', 1, 1);
+  let lastPage: Promise<ReturnType<typeof GetPageVisitHistory>> | Promise<never> = new Promise(() => {});
 
-  $: if (commandInputValue == ".p") {
+  $: if (commandInputValue == ".l") {
+    lastPage = ClientWorkerCommunicationProvider._.workerFunction<typeof GetPageVisitHistory>('pageVisitHistory', 1, 1);
     pendingChange = "test";
-    shortcutTitle = "Last page";
+    shortcutTitle = "Last page I visited";
+  } else {
+    pendingChange = null;
+    shortcutTitle = null;
   }
 </script>
 
-{#if pendingChange}
+{#if pendingChange !== null}
   <div class="oozeShortCutHint">
     <span class="oozeShortCutDesc">{shortcutTitle}:</span>
 
@@ -27,12 +31,12 @@
       <span class="oozeLoading">...</span>
     {:then page}
       {#if page.length > 0}
-        <span class="oozeShortCutTitle">{page[0].pageName}</span>
+        <span class="oozeShortCutTitle">{page[0].pageName?.toString().replace(/_/g, " ")}</span>
       {:else}
-        <span class="oozeError">Visit more pages first</span>
+        <span class="oozeShortCutHintError">Visit more pages before using this shortcut</span>
       {/if}
     {:catch error}
-      <span class="oozeError">Error: {error.message}</span>
+      <span class="oozeShortCutHintError">Error: {error.message}</span>
     {/await}
   </div>
 {/if}
