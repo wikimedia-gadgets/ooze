@@ -3,58 +3,10 @@ import dbConfigurationSchema from "./schema/Configuration";
 import dbPageVisitHistorySchema from "./schema/PageVisitHistory";
 import dbUserActionHistorySchema from "./schema/UserActionHistory";
 import dbUserCacheSchema from "./schema/UserCache";
+import { OozeDexieDB } from "./DexieDb";
 
 export default class OozeDb {
     static connection: Database | null = null;
-
-    static idbConnection: IDBDatabase | null = null;
-
-    static getIDBConnection() {
-        if (OozeDb.idbConnection) {
-            return Promise.resolve(OozeDb.idbConnection);
-        }
-
-        return new Promise<IDBDatabase>((resolve, reject) => {
-            const idbSession = indexedDB.open("oozeDb", 2);
-
-            idbSession.onupgradeneeded = function () {
-                // The database did not previously exist, so create object stores and indexes.
-                console.log("[OozeDb] IDB Upgrade");
-
-                const db = idbSession.result;
-                if (!db.objectStoreNames.contains('OozeStore')) {
-                    console.log("[OozeDb] Creating object store in indexedDB");
-                    db.createObjectStore("OozeStore");
-                }
-            };
-
-            idbSession.onsuccess = function () {
-                OozeDb.idbConnection = idbSession.result;
-                console.log("[OozeDb] Opened indexedDB connection");
-
-                if (!OozeDb.idbConnection.objectStoreNames.contains('OozeStore')) {
-                    console.error("[OozeDb] Object store not found in indexedDB");
-                    reject("Object store not found in indexedDB");
-                    return;
-                }
-
-                resolve(OozeDb.idbConnection);
-            };
-
-            idbSession.onerror = function (event) {
-                // Handle errors!
-                console.error("[OozeDb] Error opening indexedDB", event);
-                reject(event);
-            };
-
-            idbSession.onblocked = function (event) {
-                // Handle errors!
-                console.error("[OozeDb] IndexedDB connection blocked", event);
-                console.log("[OozeDb] Please close all tabs with this page open");
-                reject(event);
-            }
-        });
-    }
 
     static async persistChanges() {
         if (!OozeDb.connection) {
@@ -67,62 +19,16 @@ export default class OozeDb {
 
         console.log("[OozeDb] Got data from database");
 
-        // Open a database connection
-        const idbConnection = await OozeDb.getIDBConnection();
-        console.log("[OozeDb] Got IDB connection");
+        const id = await OozeDexieDB.dumps.put({ data, id: 1 });
 
-       const tx = idbConnection.transaction("OozeStore", "readwrite");
-
-        // Save the buffer to the object store
-        tx.objectStore("OozeStore").put(data, "oozeDbData");
-
-        tx.oncomplete = function () {
-            console.log("[OozeDb] Data saved to indexedDB");
-        };
-
-        tx.onerror = function (event) {
-            // Handle errors!
-            console.error("[OozeDb] Error saving data to indexedDB", event);
-        }
-
-        tx.oncomplete = function () {
-            idbConnection.close();
-        }
+        console.log("[OozeDb] Persisted data to indexedDB", id);
     }
 
-    static getPersistedData(): Promise<Uint8Array | null> {
-        return new Promise(async (resolve, reject) => {
-            const idbSession = await OozeDb.getIDBConnection();
-
-            try {
-                
-                // Get the data from the object store
-                const tx = idbSession.transaction("OozeStore", "readonly");
-                const getRequest = tx.objectStore("OozeStore").get("oozeDbData");
-
-                getRequest.onsuccess = function () {
-                    console.log("[OozeDb] Persisted data found in indexedDB");
-                    resolve(getRequest.result);
-                };
-            } catch (error) {
-                // @ts-ignore
-                if (error.name === "NotFoundError") {
-                    // No data found
-                    console.log("[OozeDb] No persisted data found in indexedDB");
-                    resolve(null);
-                    return;
-                }
-
-                console.error("[OozeDb] Error reading indexedDB", error);
-                reject(error);
-            }
-
-            idbSession.onerror = function (event) {
-                // Handle errors!
-                console.error("[OozeDb] Error opening indexedDB", event);
-                reject(event);
-            };
-        });
+    static async getPersistedData(): Promise<Uint8Array | null> {
+        // Get the data from indexedDB
+        const data = await OozeDexieDB.dumps.get(1);
+        if (!data) return null;
+        return data.data;
     }
 
     // Create the global connection
@@ -165,7 +71,9 @@ export default class OozeDb {
         db.run(dbUserActionHistorySchema);
         db.run(dbUserCacheSchema);
 
-        db.run("INSERT INTO Configuration (key, value) VALUES ('version', ?)", [APP_VERSION]);
+        db.run(`--sql
+        INSERT OR REPLACE INTO Configuration (key, value) VALUES ('version', ?)
+        `, [APP_VERSION]);
 
         console.log(db.exec("SELECT * FROM Configuration"));
 
