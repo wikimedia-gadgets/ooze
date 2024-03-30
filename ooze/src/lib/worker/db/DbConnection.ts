@@ -7,20 +7,20 @@ import dbUserCacheSchema from "./schema/UserCache";
 export default class OozeDb {
     static connection: Database | null = null;
 
-    // Todo: add a global connection for idb
-
     static idbConnection: IDBDatabase | null = null;
 
     static getIDBConnection() {
         if (OozeDb.idbConnection) {
-            return OozeDb.idbConnection;
+            return Promise.resolve(OozeDb.idbConnection);
         }
 
         return new Promise<IDBDatabase>((resolve, reject) => {
-            const idbSession = indexedDB.open("oozeDb", Date.now());
+            const idbSession = indexedDB.open("oozeDb", 2);
 
             idbSession.onupgradeneeded = function () {
                 // The database did not previously exist, so create object stores and indexes.
+                console.log("[OozeDb] IDB Upgrade");
+
                 const db = idbSession.result;
                 if (!db.objectStoreNames.contains('OozeStore')) {
                     console.log("[OozeDb] Creating object store in indexedDB");
@@ -31,6 +31,13 @@ export default class OozeDb {
             idbSession.onsuccess = function () {
                 OozeDb.idbConnection = idbSession.result;
                 console.log("[OozeDb] Opened indexedDB connection");
+
+                if (!OozeDb.idbConnection.objectStoreNames.contains('OozeStore')) {
+                    console.error("[OozeDb] Object store not found in indexedDB");
+                    reject("Object store not found in indexedDB");
+                    return;
+                }
+
                 resolve(OozeDb.idbConnection);
             };
 
@@ -43,6 +50,7 @@ export default class OozeDb {
             idbSession.onblocked = function (event) {
                 // Handle errors!
                 console.error("[OozeDb] IndexedDB connection blocked", event);
+                console.log("[OozeDb] Please close all tabs with this page open");
                 reject(event);
             }
         });
