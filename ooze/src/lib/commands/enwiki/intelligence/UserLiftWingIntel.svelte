@@ -1,47 +1,5 @@
 <!--
-    Generate a UserQualityRanking for a user, based on their last 10 edits.
-    We get three percentages from liftwing:
-    - Good faith likelihood
-    - Vandalism likelihood
-    - Reverted likelihood
-
-    First we invert the good faith likelihood, so that 0% is absolutely good, and 100% is absolutely bad.
-    Then for each edit, we average the three percentages, and then average the averages.
-    We then subtract 25% from the final average, and add points based on edit count
-    (usually if there has been a higher number of edits, the user is more likely to be good faith).
-
-    First on a range of edits from
-    0-15 we add 25 to 20 points (most vandals are around this range)
-    From 15-50 we add 20 to 5 points
-    From 50-100 we add 5 to 0 points
-    From 100-200 we add 0 to -5 points
-    From 200-500 we add -5 to -10 points
-    From 500-1000 we add -10 to -15 points.
-
-    If the user is reported to AIV, we add 15 points to the final score.
-
-    For users with warnings, we add 5 * warning level to the final score.
-
-    Example one:
-    - User has 10 edits, and has a 70% good faith likelihood, 10% vandalism likelihood, and 5% reverted likelihood.
-    - First (70 + 10 + 5) / 3 = 28.33%
-    - Then -25% = 3.33%
-    - Then we add 23 points, so 26.33% - this new editor is likely to be good faith.
-
-    Example two:
-    - User has 12 edits, has a 13% good faith likelihood, 80% vandalism likelihood, and 70% reverted likelihood. Level 4 warning and reported to AIV.
-    - First (87 + 80 + 70) / 3 = 79% - this places them in the vandalism range.
-    - Then -25% = 54%
-    - For 12 edits, we add 22 points, so 76%
-    - For a level 4 warning, we add 20 points, so 96%
-    - For being reported to AIV, we add 15 points, but we clamp the score to 100, so 100%
-
-    Example three:
-    - User has 1 edit, a 1% good faith likelihood, 95% vandalism likelihood, and 98% reverted likelihood. Level 4 only warning.
-    - First (99 + 95 + 98) / 3 = 97.33%
-    - Then -25% = 72.33%
-    - For 1 edit, we add 24 points, so 96.33%
-    - For a level 4 warning, we add 20 points, so 116.33% - we clamp the score to 100, so 100%
+    Risk analysis display
 -->
 
 <script lang="ts">
