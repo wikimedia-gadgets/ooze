@@ -23,6 +23,10 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
     */
     for (const user of users) {
         // If the user is in the cache, remove them from the array and add them to the object
+        if (typeof user !== "string") {
+            delete users[users.indexOf(user)];
+            continue;
+        }
 
         const cacheStatement = `--sql
         SELECT recordValue FROM UserData
@@ -33,7 +37,9 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
 
         const result = OozeDb.connection?.exec(cacheStatement, [user]);
 
-        if (result) {
+        console.log("checkIfReportedToAiv for "+ user, result);
+
+        if (result && result.length > 0) {
             reported[user] = result[0].values[0][0] === "true";
             delete users[users.indexOf(user)];
         }
@@ -65,7 +71,7 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
             VALUES (?, "aivReported", "true", strftime('%s', 'now'));
             `;
 
-            OozeDb.connection?.exec(cacheStatement, [username]);
+            OozeDb.connection?.run(cacheStatement, [username]);
 
             reported[username] = true;
             delete users[users.indexOf(username)];
@@ -84,7 +90,9 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
             VALUES (?, "aivReported", "true", strftime('%s', 'now'));
             `;
 
-            OozeDb.connection?.exec(cacheStatement, [ip]);
+            console.log("cache true for IP")
+
+            OozeDb.connection?.run(cacheStatement, [ip]);
 
             reported[ip] = true;
             delete users[users.indexOf(ip)];
@@ -94,12 +102,16 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
     // Any users that weren't reported need to be added to the object
     for (const user of users) {
         // Add to the cache as false
+        if (typeof user !== "string") {
+            continue;
+        }
+        
         const cacheStatement = `--sql
         INSERT OR REPLACE INTO UserData (username, recordKey, recordValue, lastUpdated)
         VALUES (?, "aivReported", "false", strftime('%s', 'now'));
         `;
 
-        OozeDb.connection?.exec(cacheStatement, [user]);
+        OozeDb.connection?.run(cacheStatement, [user]);
 
         reported[user] = false;
     }

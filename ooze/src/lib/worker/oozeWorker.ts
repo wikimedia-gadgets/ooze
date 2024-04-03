@@ -13,8 +13,9 @@ import UsersSearch from "./functions/enwiki/UsersSearch";
 import ClientFetch from "./proxies/ClientFetch";
 import MediaWikiProxy from "./proxies/MediaWikiProxy";
 import GetPageVisitHistory from "./functions/PageVisitHistory";
+import ExportSqlDb from "./functions/ExportSqliteDb";
 
-console.log("[OOZE] Ooze worker loaded [sharedworker]");
+console.log("[oozeWorker] Ooze worker loaded [sharedworker]");
 
 interface SharedWorkerGlobalScope {
     onconnect: (event: MessageEvent) => void;
@@ -34,6 +35,7 @@ new ClientFetch();
 // Initialize the worker function handler
 const wfh = new WorkerFunctionHandler({
     "heartbeat": Heartbeat,
+    "exportSqlDb": ExportSqlDb,
     "enwikiLastEditorsOnPage": LastEditorsOnPage,
     "enwikiBasicSearch": BasicSearch,
     "enwikiUsersSearch": UsersSearch,
@@ -97,11 +99,11 @@ _self.onconnect = e => {
         // If data includes a "workerTaskID" and "clientFetchJsonResult", it's a result of a fetch request,
         // and should be passed back to the ClientFetch Proxy
         if (data.workerTaskID && data.clientFetchJsonResult) {
-            console.log("Handling client fetch response", data);
+            // console.log("Handling client fetch response", data);
             ClientFetch._?.handleResponse(data);
             return;
         }
 
-        console.warn("Unhandled message from client", data);
+        console.warn("[oozeWorker] Unhandled message from client", data);
     });
 };

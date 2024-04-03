@@ -36,10 +36,7 @@ export default class OozeDb {
         console.log("[OozeDb] Initializing database");
 
         const sql = await initSqlJs({
-            locateFile: (url, dir) => {
-                console.log(url, dir);
-                return '/sql-wasm.wasm';
-            },
+            locateFile: () => '/sql-wasm.wasm',
         });
 
         // Check for persisted data
@@ -74,9 +71,7 @@ export default class OozeDb {
         db.run(`--sql
         INSERT OR REPLACE INTO Configuration (key, value) VALUES ('version', ?)
         `, [APP_VERSION]);
-
-        console.log(db.exec("SELECT * FROM Configuration"));
-
+        
         OozeDb.persistChanges();
 
         console.log("[OozeDb] Database initialized");

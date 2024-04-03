@@ -53,12 +53,12 @@
 
   $: if (commandBeingTyped && commandBeingTyped.arguments) {
     commandPalletInputIcon =
-      commandBeingTyped.arguments[argumentNumber].icon ??
+      commandBeingTyped.arguments[argumentNumber]?.icon ??
       cdxIconFunctionArgument;
 
     commandPalletPlaceholder =
-      commandBeingTyped.arguments[argumentNumber].placeholder ??
-      `Enter ${commandBeingTyped.arguments[argumentNumber].name}`;
+      commandBeingTyped.arguments[argumentNumber]?.placeholder ??
+      `Enter ${commandBeingTyped.arguments[argumentNumber]?.name ?? "argument"} for ${commandBeingTyped.name}`;
   }
 
   // On argument change, if argument value already set set commandInputValue to it
@@ -141,7 +141,7 @@
         // Move on - before doing so, ensure the argument is valid
         if (commandBeingTyped?.arguments) {
           const validation =
-            commandBeingTyped.arguments[argumentNumber].validate(
+            commandBeingTyped.arguments[argumentNumber]?.validate(
               commandInputValue
             );
 

@@ -3,7 +3,9 @@ import oozeWorker from "./oozeWorker?sharedworker";
 const oozeVer = APP_VERSION;
 
 // Entry for worker iframe
-console.log(`OOZEworker [frame] v${oozeVer} - copyright 2024 Ed Englefield`);
+console.log(`OOZEworker [frame] v${oozeVer} - copyright 2024 Ed Englefield
+This tool is free software, and you are welcome to redistribute it or modify it under the terms of the
+GNU GPLv3 or later. Please don't remove any copyright notices or this message.`);
 
 // Create a new worker
 const worker = new oozeWorker();

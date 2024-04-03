@@ -8,7 +8,7 @@ import {
     cdxIconSearch
 } from "@wikimedia/codex-icons";
 import SettingsUi from "./SettingsUI.svelte";
-import SqlWarning from "../settings/SqlWarning.svelte";
+import ExportSqlDb from "../settings/ExportSqlDb.svelte";
 import UserSearchIntel from "./intelligence/UserSearchIntel.svelte";
 import UwSearch from "./uwSearch.svelte";
 import UwPreview from "./UwPreview.svelte";
@@ -18,6 +18,22 @@ import RestrictFeatureLevel from "../RestrictFeatureLevel";
 import PageSearchIntel from "./intelligence/PageSearchIntel.svelte";
 
 export const Commands: Record<string, Command> = {
+    // Export sqlite database
+    "exportdb": {
+        name: "Export database",
+        description: "Export the database to a file.",
+        arguments: [
+            {
+                name: "Export",
+                description: "Export the database to a file.",
+                placeholder: "Check your downloads",
+                type: CommandArgumentType.plainText,
+                validate: () => "",
+            },
+        ],
+        validate: () => true,
+        headerComponent: ExportSqlDb,
+    },
     // Ooze settings
     "settings": {
         name: "Settings",

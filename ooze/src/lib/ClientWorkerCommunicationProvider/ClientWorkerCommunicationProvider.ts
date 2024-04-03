@@ -66,7 +66,7 @@ export default class ClientWorkerCommunicationProvider {
         if (e.data.data.mwFunction && e.data.data.workerTaskID) {
             // See MediaWikiProxy.ts in the worker - mwFunction is a string array like ["config", "get"]
             // mwArgs is the arguments for the function
-            console.log('MediaWiki function request', e.data.data.mwFunction, e.data.data.mwArgs);
+            // console.log('MediaWiki function request', e.data.data.mwFunction, e.data.data.mwArgs);
             const mwFunction: string[] = e.data.data.mwFunction;
             const mwArgs: any[] = e.data.data.mwArgs;
 
@@ -87,7 +87,7 @@ export default class ClientWorkerCommunicationProvider {
 
             // If the result has a "then" property, it's a promise, and we should await it
             if (result?.then) {
-                console.log('Promise detected');
+                // console.log('Promise detected');
                 result.then((resolved: any) => {
                     this.sendToWorker({
                         taskID: e.data.data.workerTaskID,
@@ -100,7 +100,7 @@ export default class ClientWorkerCommunicationProvider {
                 return;
             }
 
-            console.log('Result', result);
+            // console.log('Result', result);
 
             this.sendToWorker({
                 mwFunction: e.data.data.mwFunction,
@@ -113,7 +113,7 @@ export default class ClientWorkerCommunicationProvider {
 
         // Client fetch request
         if (e.data.data.clientFetchJsonUrl && e.data.data.workerTaskID) {
-            console.log('Client fetch request', e.data.data.clientFetchJsonUrl, e.data.data.clientFetchJsonOptions);
+            // console.log('Client fetch request', e.data.data.clientFetchJsonUrl, e.data.data.clientFetchJsonOptions);
             // Fetch the data
             const fetchR = await fetch(e.data.data.clientFetchJsonUrl, e.data.data.clientFetchJsonOptions);
 
