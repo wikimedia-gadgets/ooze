@@ -14,6 +14,7 @@ import ClientFetch from "./proxies/ClientFetch";
 import MediaWikiProxy from "./proxies/MediaWikiProxy";
 import GetPageVisitHistory from "./functions/PageVisitHistory";
 import ExportSqlDb from "./functions/ExportSqliteDb";
+import GetStorageAvailToOozeWorker from "./functions/GetStorageAvailToOozeWorker";
 
 console.log("[oozeWorker] Ooze worker loaded [sharedworker]");
 
@@ -36,6 +37,7 @@ new ClientFetch();
 const wfh = new WorkerFunctionHandler({
     "heartbeat": Heartbeat,
     "exportSqlDb": ExportSqlDb,
+    "getStorage": GetStorageAvailToOozeWorker,
     "enwikiLastEditorsOnPage": LastEditorsOnPage,
     "enwikiBasicSearch": BasicSearch,
     "enwikiUsersSearch": UsersSearch,

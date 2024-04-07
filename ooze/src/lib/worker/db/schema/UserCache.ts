@@ -1,9 +1,7 @@
 // Holds warnings given to a user in the past
 // We scrape these in the background and store them here
 /*
-recordId: for tracking of cache values
-Username: string
-lastUpdated: 
+Expires by default in 7 days from record creation
 */
 
 
@@ -13,6 +11,7 @@ CREATE TABLE IF NOT EXISTS UserData (
     recordKey TEXT NOT NULL,
     recordValue TEXT NOT NULL,
     lastUpdated INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    staleAfter INTEGER NOT NULL DEFAULT (strftime('%s', 'now') + 604800),
     PRIMARY KEY (username, recordKey)
 );
 
