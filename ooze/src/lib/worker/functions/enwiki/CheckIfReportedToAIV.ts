@@ -1,6 +1,8 @@
 // Check if user(s) have been reported to AIV
 
 import OozeDb from "../../db/DbConnection";
+import QueryUserCache from "../../db/helpers/QueryUserCache";
+import UpdateUserCache from "../../db/helpers/UpdateUserCache";
 import ClientFetch from "../../proxies/ClientFetch";
 import type { ApiParseParams } from "types-mediawiki/api_params";
 
@@ -17,10 +19,7 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
 
     const reported: Record<string, boolean> = {};
 
-    // Check cache for any of the users. Do not use cache if more stale than 15 seconds
-    /*
-    SELECT username, recordValue FROM UserData WHERE username IN (users) AND recordKey = "aivReported" AND lastUpdated > (strftime('%s', 'now') - 15);
-    */
+    // Check cache for any of the users
     for (const user of users) {
         // If the user is in the cache, remove them from the array and add them to the object
         if (typeof user !== "string") {
@@ -28,19 +27,10 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
             continue;
         }
 
-        const cacheStatement = `--sql
-        SELECT recordValue FROM UserData
-        WHERE username = ? AND recordKey = "aivReported"
-        AND lastUpdated > (strftime('%s', 'now') - 15)
-        LIMIT 1;
-        `;
+        const queryUser = await QueryUserCache(user, "aivReported");
 
-        const result = OozeDb.connection?.exec(cacheStatement, [user]);
-
-        console.log("checkIfReportedToAiv for "+ user, result);
-
-        if (result && result.length > 0) {
-            reported[user] = result[0].values[0][0] === "true";
+        if (queryUser !== false) {
+            reported[user] = queryUser === "true";
             delete users[users.indexOf(user)];
         }
     }
@@ -65,13 +55,8 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
     for (const [_, username] of matches) {
         if (users.includes(username)) {
 
-            // Add to the cache
-            const cacheStatement = `--sql
-            INSERT OR REPLACE INTO UserData (username, recordKey, recordValue, lastUpdated)
-            VALUES (?, "aivReported", "true", strftime('%s', 'now'));
-            `;
-
-            OozeDb.connection?.run(cacheStatement, [username]);
+            // Add to the cache. Stale after 30 seconds
+            await UpdateUserCache(username, "aivReported", "true", 30);
 
             reported[username] = true;
             delete users[users.indexOf(username)];
@@ -85,14 +70,7 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
         if (users.includes(ip)) {
 
             // Add to the cache
-            const cacheStatement = `--sql
-            INSERT OR REPLACE INTO UserData (username, recordKey, recordValue, lastUpdated)
-            VALUES (?, "aivReported", "true", strftime('%s', 'now'));
-            `;
-
-            console.log("cache true for IP")
-
-            OozeDb.connection?.run(cacheStatement, [ip]);
+            await UpdateUserCache(ip, "aivReported", "true", 30);
 
             reported[ip] = true;
             delete users[users.indexOf(ip)];
@@ -106,12 +84,8 @@ export default async function CheckIfReportedToAIV(users: string[]): Promise<Rec
             continue;
         }
         
-        const cacheStatement = `--sql
-        INSERT OR REPLACE INTO UserData (username, recordKey, recordValue, lastUpdated)
-        VALUES (?, "aivReported", "false", strftime('%s', 'now'));
-        `;
-
-        OozeDb.connection?.run(cacheStatement, [user]);
+        // Max 30 seconds on all AIV caches
+        await UpdateUserCache(user, "aivReported", "false", 30);
 
         reported[user] = false;
     }

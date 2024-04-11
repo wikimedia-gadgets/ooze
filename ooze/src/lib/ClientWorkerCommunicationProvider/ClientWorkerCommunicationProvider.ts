@@ -2,6 +2,10 @@
 // Due to cross-origin limitations, communication is done via the oozeFrame iframe.
 // This allows us to still have a shared worker, but also allows us to communicate with the client.
 
+import type WorkerFunctions from "../worker/functions/WorkerFunctions";
+
+export type CWCAwaited<T extends (...args: any[]) => any> = Promise<Awaited<ReturnType<T>>>;
+
 export default class ClientWorkerCommunicationProvider {
     private oozeFrame: HTMLIFrameElement;
     private oozeID: string;
@@ -135,7 +139,7 @@ export default class ClientWorkerCommunicationProvider {
     // You can import *TYPES* from the worker into the client and use them here to preserve type safety.
     // The message will be sent to the worker, and the worker will send a response back.
     // The bridge identifier identifies the function to call in the worker.
-    public workerFunction<T extends (...args: any[]) => any>(bridgeIdentifier: string, ...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> {
+    public workerFunction<T extends (...args: any[]) => any>(bridgeIdentifier: keyof typeof WorkerFunctions, ...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> {
         // Generate a task ID
         const taskID = crypto.randomUUID();
         const promise = new Promise<Awaited<ReturnType<T>>>((resolve, reject) => {

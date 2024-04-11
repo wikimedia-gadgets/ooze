@@ -18,6 +18,14 @@ CREATE TABLE IF NOT EXISTS UserData (
 -- Add an index for username and recordKey
 CREATE INDEX IF NOT EXISTS idx_UserData_username_recordKey
 ON UserData (username, recordKey);
+
+-- If staleAfter is in the past, we should delete the record
+-- This is done by a trigger
+CREATE TRIGGER IF NOT EXISTS UserData_staleAfter_trigger
+AFTER INSERT ON UserData
+BEGIN
+    DELETE FROM UserData WHERE staleAfter < strftime('%s', 'now');
+END;
 `;
 
 export default dbUserCacheSchemaSQL;

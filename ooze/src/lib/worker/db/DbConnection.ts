@@ -63,10 +63,16 @@ export default class OozeDb {
         OozeDb.connection = db;
 
         // Create/migrate the tables
+        console.log("[OozeDb] Creating/migrating tables");
+        console.log("[OozeDb] Configuration");
         db.run(dbConfigurationSchema);
+        console.log("[OozeDb] PageVisitHistory");
         db.run(dbPageVisitHistorySchema);
+        console.log("[OozeDb] UserActionHistory");
         db.run(dbUserActionHistorySchema);
+        console.log("[OozeDb] UserCache");
         db.run(dbUserCacheSchema);
+        console.log("[OozeDb] Done creating/migrating tables");
 
         db.run(`--sql
         INSERT OR REPLACE INTO Configuration (key, value) VALUES ('version', ?)

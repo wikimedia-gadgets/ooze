@@ -1,17 +1,15 @@
 <!-- Page search intel -->
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import ClientWorkerCommunicationProvider from "../../../ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider";
+  import ClientWorkerCommunicationProvider, { type CWCAwaited } from "../../../ClientWorkerCommunicationProvider/ClientWorkerCommunicationProvider";
   import type GetPageVisitHistory from "../../../worker/functions/PageVisitHistory";
-
-  const dispatch = createEventDispatcher();
 
   export let commandInputValue: string;
 
   let pendingChange: string | null = null;
   let shortcutTitle: string | null = null;
 
-  let lastPage: Promise<ReturnType<typeof GetPageVisitHistory>> | Promise<never> = new Promise(() => {});
+  let lastPage: CWCAwaited<typeof GetPageVisitHistory> | Promise<never> = new Promise(() => {});
 
   $: if (commandInputValue == ".l") {
     lastPage = ClientWorkerCommunicationProvider._.workerFunction<typeof GetPageVisitHistory>('pageVisitHistory', 1, 1);

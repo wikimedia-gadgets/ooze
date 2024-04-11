@@ -2,12 +2,21 @@
 // Pretty similar to how RedWarn does it - most of this algorithm is derived from RedWarn
 // Apache-2.0 License, see https://github.com/wikimedia-gadgets/redwarn/blob/master/src/js/info.js#L374
 
+import QueryUserCache from "../../db/helpers/QueryUserCache";
+import UpdateUserCache from "../../db/helpers/UpdateUserCache";
 import ClientFetch from "../../proxies/ClientFetch";
 import type { ApiParseParams } from "types-mediawiki/api_params";
 
 export default async function GetUserWarningLevel(username: string): Promise<0 | 1 | 2 | 3 | 4> {
     if (username === "") {
         return 0;
+    }
+
+    // Check cache for the user's talk page
+    const warningLevel = await QueryUserCache(username, "warningLevel");
+
+    if (warningLevel !== false) {
+        return parseInt(warningLevel) as 0 | 1 | 2 | 3 | 4;
     }
 
     const params: ApiParseParams = {
@@ -41,6 +50,8 @@ export default async function GetUserWarningLevel(username: string): Promise<0 |
         headingsToCheck.push(lastMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' }));
     }
 
+    let maxWarningLevel = 0;
+
     for (const heading of headingsToCheck) {
         // Check if the heading exists
         let matchedHeading = "";
@@ -69,23 +80,35 @@ export default async function GetUserWarningLevel(username: string): Promise<0 |
         // ! Must be done in order of level
 
         if (sectionText.match(/(File:|Image:)Stop hand nuvola.svg/gi)) {
-            return 4;
+            maxWarningLevel = 4;
+            break;
         }
 
         if (sectionText.match(/(File:|Image:)(Nuvola apps important.svg|Ambox warning pn.svg)/gi)) {
-            return 3;
+            if (maxWarningLevel < 3) {
+                maxWarningLevel = 3;
+            }
+            continue;
         }
 
         if (sectionText.match(/(File:|Image:)Information orange.svg/gi)) {
-            return 2;
+            if (maxWarningLevel < 2) {
+                maxWarningLevel = 2;
+            }
+            continue;
         }
 
         if (sectionText.match(/(File:|Image:)Ambox notice.png|Information.svg/gi)) {
-            return 1;
+            if (maxWarningLevel < 1) {
+                maxWarningLevel = 1;
+            }
+            continue;
         }
 
     }
 
-    // No matches
-    return 0;
+    // Cache for 15 seconds
+    await UpdateUserCache(username, "warningLevel", maxWarningLevel.toString(), 15);
+
+    return maxWarningLevel as 0 | 1 | 2 | 3 | 4;
 }

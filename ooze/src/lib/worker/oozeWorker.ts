@@ -15,6 +15,7 @@ import MediaWikiProxy from "./proxies/MediaWikiProxy";
 import GetPageVisitHistory from "./functions/PageVisitHistory";
 import ExportSqlDb from "./functions/ExportSqliteDb";
 import GetStorageAvailToOozeWorker from "./functions/GetStorageAvailToOozeWorker";
+import WorkerFunctions from "./functions/WorkerFunctions";
 
 console.log("[oozeWorker] Ooze worker loaded [sharedworker]");
 
@@ -34,20 +35,7 @@ new MediaWikiProxy();
 new ClientFetch();
 
 // Initialize the worker function handler
-const wfh = new WorkerFunctionHandler({
-    "heartbeat": Heartbeat,
-    "exportSqlDb": ExportSqlDb,
-    "getStorage": GetStorageAvailToOozeWorker,
-    "enwikiLastEditorsOnPage": LastEditorsOnPage,
-    "enwikiBasicSearch": BasicSearch,
-    "enwikiUsersSearch": UsersSearch,
-    "enwikiCheckAiv": CheckIfReportedToAIV,
-    "enwikiGetUserWarningLevel": GetUserWarningLevel,
-    "enwikiLiftWingInsights": LiftWingInsights,
-    "enwikiGetUserRevIDs": GetUserRevIDs,
-    "registerPageVisit": RegisterPageVisit,
-    "pageVisitHistory": GetPageVisitHistory,
-});
+const wfh = new WorkerFunctionHandler(WorkerFunctions);
 
 (async () => {
     try {
