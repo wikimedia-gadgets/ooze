@@ -17,6 +17,7 @@
   import CodexChip from "./vue/CodexChip.svelte";
   import OozeUiWrapper from "./OozeUIWrapper.svelte";
   import { CanUseOoze } from "./commands/RestrictFeatureLevel";
+  import MenuButtonInsight from "./commands/enwiki/intelligence/MenuButtonInsight.svelte";
 
   const { DemoModeEnabled } = CanUseOoze._;
 
@@ -385,4 +386,6 @@
       {/if}
     </div>
   {/if}
+
+  <MenuButtonInsight />
 </OozeUiWrapper>
