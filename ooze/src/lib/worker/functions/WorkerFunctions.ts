@@ -1,3 +1,4 @@
+import DeleteIndexedDB from "./DeleteIndexedDb";
 import ExportSqliteDb from "./ExportSqliteDb";
 import GetStorageAvailToOozeWorker from "./GetStorageAvailToOozeWorker";
 import Heartbeat from "./Heartbeat";
@@ -14,6 +15,7 @@ import UsersSearch from "./enwiki/UsersSearch";
 const WorkerFunctions = {
     "heartbeat": Heartbeat,
     "exportSqlDb": ExportSqliteDb,
+    "deleteIndexedDB": DeleteIndexedDB,
     "getStorage": GetStorageAvailToOozeWorker,
     "enwikiLastEditorsOnPage": LastEditorsOnPage,
     "enwikiBasicSearch": BasicSearch,

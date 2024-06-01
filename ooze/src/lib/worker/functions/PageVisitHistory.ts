@@ -20,7 +20,8 @@ export default async function GetPageVisitHistory(limit: number = 10, offset: nu
     return result[0].values.map(row => {
         return {
             pageName: row[0],
-            timestamp: row[1]
+            pageNamespace: row[1],
+            timestamp: row[2]
         };
     });
 }

@@ -16,6 +16,7 @@ import enwikiWarnings from "./data/Warnings";
 import UserWarningLevelAdvancer from "./intelligence/UserWarningLevelAdvancer.svelte";
 import RestrictFeatureLevel from "../RestrictFeatureLevel";
 import PageSearchIntel from "./intelligence/PageSearchIntel.svelte";
+import DeleteSqlDb from "../settings/DeleteSqlDb.svelte";
 
 export const Commands: Record<string, Command> = {
     // Export sqlite database
@@ -33,6 +34,14 @@ export const Commands: Record<string, Command> = {
         ],
         validate: () => true,
         headerComponent: ExportSqlDb,
+    },
+    // Delete sqlite database
+    "drop_all_db": {
+        name: "Delete database",
+        description: "Delete the database permanently.",
+        arguments: [],
+        validate: () => true,
+        headerComponent: DeleteSqlDb,
     },
     // Ooze settings
     "settings": {

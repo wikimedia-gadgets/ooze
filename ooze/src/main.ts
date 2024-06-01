@@ -47,7 +47,7 @@ setInterval(async () => {
 // Do this once the frame has loaded
 setTimeout(async () => {
   console.log("[ooze] Registering visit", mw.config.get('wgPageName'));
-  const r = await oozeCom.workerFunction<typeof RegisterPageVisit>('registerPageVisit', mw.config.get('wgPageName'));
+  const r = await oozeCom.workerFunction<typeof RegisterPageVisit>('registerPageVisit', mw.config.get('wgPageName'), mw.config.get('wgCanonicalNamespace'));
   if (!r) console.error("[ooze] Failed to register page visit");
   console.log("[ooze] Registered page visit");
 

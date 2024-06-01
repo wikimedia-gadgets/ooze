@@ -61,8 +61,12 @@ If on a userpage: .u - the last userpage visited will be this one
         defaultIntelSearch(shortCutReplacement, 1);
         break;
       case ".u":
+        // Last user page visited
         shortCutBeingTyped = UserSearchIntelShortcuts.u;
         isLoadingResultOfShortcut = true;
+
+        
+
         break;
       case ".e":
         shortCutBeingTyped = UserSearchIntelShortcuts.e;

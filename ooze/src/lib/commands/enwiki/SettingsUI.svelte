@@ -19,6 +19,7 @@
     <p>Loading...</p>
 {:then storage}
     <p>Storage available: {JSON.stringify(storage)} bytes</p>
+    <p>Delete DB by running .db_del</p>
 {:catch error}
     <p>Failed to load storage information: {error.message}</p>
 {/await}
