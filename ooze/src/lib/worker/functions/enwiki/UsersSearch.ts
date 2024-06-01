@@ -13,6 +13,9 @@ export interface UserResult {
     joinedTimestamp: string;
     reportedToAIV?: boolean;
     warningLevel?: 0 | 1 | 2 | 3 | 4;
+
+    // If this is true, we don't display anything other than the username
+    isBasicSearchResult?: boolean;
 }
 
 

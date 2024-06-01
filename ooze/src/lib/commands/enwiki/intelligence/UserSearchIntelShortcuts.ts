@@ -68,8 +68,18 @@ const UserSearchIntelShortcuts: Record<string, UserSearchIntelShortcut> = {
 
     'u': {
         shortcut: '.u',
-        description: 'Last user page',
-    }
+        description: 'This (or the last) user page',
+    },
+
+    'u-p1': {
+        shortcut: '.u [offset]',
+        description: '.u [offset] (optional: results length)',
+    },
+
+    'u-p2': {
+        shortcut: '.u [offset] [results length]',
+        description: '.u [offset] [results length]',
+    },
 };
 
 export default UserSearchIntelShortcuts;

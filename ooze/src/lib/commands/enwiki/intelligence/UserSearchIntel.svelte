@@ -17,6 +17,7 @@ If on a userpage: .u - the last userpage visited will be this one
   import type CheckIfReportedToAIV from "../../../worker/functions/enwiki/CheckIfReportedToAIV";
   import type GetUserWarningLevel from "../../../worker/functions/enwiki/GetUserWarningLevel";
   import UserLiftWingIntel from "./UserLiftWingIntel.svelte";
+  import type GetPageVisitHistory from "../../../worker/functions/PageVisitHistory";
 
   const dispatch = createEventDispatcher();
 
@@ -65,7 +66,125 @@ If on a userpage: .u - the last userpage visited will be this one
         shortCutBeingTyped = UserSearchIntelShortcuts.u;
         isLoadingResultOfShortcut = true;
 
-        
+        // Offset (take from second argument if present)
+        // Default no offset, we want whatever the last OR current page is
+
+        let offset = 0;
+        let limit = 1; // By default only 1 result
+
+        if (split.length > 1) {
+          shortCutBeingTyped = UserSearchIntelShortcuts["u-p1"];
+
+          // Make sure we can parse the offset
+          const offsetString = split[1];
+          if (offsetString.length === 0) {
+            shortCutResultError = "Invalid offset";
+            isLoadingResultOfShortcut = false;
+            dispatch("resetInputValue");
+            userSearchResults = [];
+            return;
+          }
+
+          offset = parseInt(offsetString);
+
+          if (isNaN(offset)) {
+            shortCutResultError = "Invalid offset";
+            isLoadingResultOfShortcut = false;
+            dispatch("resetInputValue");
+            userSearchResults = [];
+            return;
+          }
+        }
+
+        // 2 arguments, we'll take the limit from the second argument
+        if (split.length > 2) {
+          shortCutBeingTyped = UserSearchIntelShortcuts["u-p2"];
+
+          // Make sure we can parse the limit
+          const limitString = split[2];
+          if (limitString.length === 0) {
+            shortCutResultError = "Invalid limit";
+            isLoadingResultOfShortcut = false;
+            dispatch("resetInputValue");
+            userSearchResults = [];
+            return;
+          }
+
+          limit = parseInt(limitString);
+          if (isNaN(limit)) {
+            shortCutResultError = "Invalid limit";
+            isLoadingResultOfShortcut = false;
+            dispatch("resetInputValue");
+            userSearchResults = [];
+            return;
+          }
+
+          // Max limit has to be 30
+          if (limit > 30) {
+            shortCutResultError = "Limit must be under 30";
+            isLoadingResultOfShortcut = false;
+            dispatch("resetInputValue");
+            userSearchResults = [];
+            return;
+          }
+        }
+
+        // If more than 2 arguments, error
+        if (split.length > 3) {
+          shortCutResultError = "Too many arguments";
+          isLoadingResultOfShortcut = false;
+          dispatch("resetInputValue");
+          userSearchResults = [];
+          return;
+        }
+
+        // Browse our history
+        const result = await ClientWorkerCommunicationProvider._.workerFunction<
+          typeof GetPageVisitHistory
+        >(
+          "pageVisitHistory",
+          limit,
+          offset,
+          // where... we're only interested in user pages
+          `namespace = 'User' OR namespace = 'User_talk'`
+        );
+
+        if (result.length === 0) {
+          shortCutResultError = "No results";
+          isLoadingResultOfShortcut = false;
+          dispatch("resetInputValue");
+          userSearchResults = [];
+          return;
+        }
+
+        // Our username follows the colon in the title, and we want to replace underscores with spaces
+        const username =
+          result[0].pageName?.toString().split(":")[1].replace(/_/g, " ") ?? "";
+
+        shortCutResultError = null;
+        isLoadingResultOfShortcut = false;
+        shortCutReplacement = username;
+        dispatch("overrideInputValue", shortCutReplacement);
+        if (limit == 1) {
+          defaultIntelSearch(shortCutReplacement, 1);
+        } else {
+          userSearchResults = result.map((r) => {
+            return {
+              username:
+                r.pageName?.toString().split(":")[1].replace(/_/g, " ") ?? "",
+              groups: [],
+              rights: [],
+              block: {},
+              editCount: 0,
+              warningLevel: 0,
+              joinedTimestamp: "",
+              reportedToAIV: false,
+              isBasicSearchResult: true,
+            };
+          });
+        }
+
+        // If limit is more than one
 
         break;
       case ".e":
@@ -144,17 +263,25 @@ If on a userpage: .u - the last userpage visited will be this one
     }
   };
 
-  const defaultIntelSearch = async (userPrefix: string, limit: number = 3, overrideInputValue = false) => {
+  const defaultIntelSearch = async (
+    userPrefix: string,
+    limit: number = 3,
+    overrideInputValue = false
+  ) => {
     // Run a basic search first, then we get our deeper intel
     userSearchResults =
-      await ClientWorkerCommunicationProvider._.workerFunction<
+      (await ClientWorkerCommunicationProvider._.workerFunction<
         typeof UsersSearch
-      >("enwikiUsersSearch", userPrefix, limit); // Todo: Limit here is 3 but make this a setting
+      >("enwikiUsersSearch", userPrefix, limit)) ?? []; // Todo: Limit here is 3 but make this a setting
 
-      // If overriding input value, set the input value to the first result
-      if (overrideInputValue && userSearchResults && userSearchResults.length > 0) {
-        dispatch("overrideInputValue", userSearchResults[0].username);
-      }
+    // If overriding input value, set the input value to the first result
+    if (
+      overrideInputValue &&
+      userSearchResults &&
+      userSearchResults.length > 0
+    ) {
+      dispatch("overrideInputValue", userSearchResults[0].username);
+    }
 
     // Once that's done check AIV. Only do that if usernames in userSearchResults > 0
     // IMPORTANT: No (top level) await here, we want to run everything at once
@@ -246,91 +373,102 @@ If on a userpage: .u - the last userpage visited will be this one
 {#if userSearchResults}
   <div class="oozeSearchResults">
     {#each userSearchResults as user, i}
-      <div class="oozeSearchResult" on:click={()=>{
-        // On click, set the input value to the username
-        dispatch("setInputValue", user.username);
-      }} on:keydown={(e) => {
-        if (e.key === "Enter") {
+      <div
+        class="oozeSearchResult"
+        on:click={() => {
+          // On click, set the input value to the username
           dispatch("setInputValue", user.username);
-        } 
-      }} role="button" tabindex={i}>
+        }}
+        on:keydown={(e) => {
+          if (e.key === "Enter") {
+            dispatch("setInputValue", user.username);
+          }
+        }}
+        role="button"
+        tabindex={i}
+      >
         <span class="oozeSearchResultName">{user.username}</span>
-        <span class="oozeSearchResultEditCount">{user.editCount}</span>
 
-        <!-- Warning level -->
-        {#if user.warningLevel === undefined}
-          <!-- This adds a fade in fade out loading -->
-          <span class="oozeSearchResultWarningLevel oozeLoading"
-            >Loading</span
-          >
-        {:else if user.warningLevel === 0}
-          <span class="oozeSearchResultWarningLevel warningLevelNone"
-            >No Warnings</span
-          >
-        {:else if user.warningLevel === 1}
-          <span class="oozeSearchResultWarningLevel warningLevelNotice"
-            >Notice</span
-          >
-        {:else if user.warningLevel === 2}
-          <span class="oozeSearchResultWarningLevel warningLevelCaution"
-            >Caution</span
-          >
-        {:else if user.warningLevel === 3}
-          <span class="oozeSearchResultWarningLevel warningLevelWarning"
-            >Warning</span
-          >
-        {:else if user.warningLevel === 4}
-          <span
-            class="oozeSearchResultWarningLevel warningLevelFinalWarning"
-            >Final Warning</span
-          >
-        {/if}
+        {#if !user.isBasicSearchResult}
+          <span class="oozeSearchResultEditCount">{user.editCount}</span>
 
-        {#if user.reportedToAIV === undefined}
-          <!-- This adds a fade in fade out loading -->
-          <span class="oozeSearchResultReportedToAIV oozeLoading">AIV</span>
-        {:else if user.reportedToAIV === true}
-          <span class="oozeSearchResultReportedToAIV aivReported"
-            >AIV Report</span
-          >
-        {:else}
-          <span class="oozeSearchResultReportedToAIV aivNotReported"
-            >AIV</span
-          >
-        {/if}
-
-        <!-- Quality indicator -->
-        <UserLiftWingIntel
-          username={user.username}
-          editCount={user.editCount}
-          isReportedToAIV={user.reportedToAIV}
-          warningLevel={user.warningLevel}
-        />
-
-        {#if Object.keys(user.block).length > 0}
-          <span class="oozeSearchResultBlock">Blocked</span>
-          {#if user.block.blocknocreate === ""}
-            <span class="oozeSearchResultBlockExtra"
-              >Page creation blocked</span
+          <!-- Warning level -->
+          {#if user.warningLevel === undefined}
+            <!-- This adds a fade in fade out loading -->
+            <span class="oozeSearchResultWarningLevel oozeLoading">Loading</span
+            >
+          {:else if user.warningLevel === 0}
+            <span class="oozeSearchResultWarningLevel warningLevelNone"
+              >No Warnings</span
+            >
+          {:else if user.warningLevel === 1}
+            <span class="oozeSearchResultWarningLevel warningLevelNotice"
+              >Notice</span
+            >
+          {:else if user.warningLevel === 2}
+            <span class="oozeSearchResultWarningLevel warningLevelCaution"
+              >Caution</span
+            >
+          {:else if user.warningLevel === 3}
+            <span class="oozeSearchResultWarningLevel warningLevelWarning"
+              >Warning</span
+            >
+          {:else if user.warningLevel === 4}
+            <span class="oozeSearchResultWarningLevel warningLevelFinalWarning"
+              >Final Warning</span
             >
           {/if}
 
-          {#if user.block.blockemail === ""}
-            <span class="oozeSearchResultBlockExtra">Email blocked</span>
+          {#if user.reportedToAIV === undefined}
+            <!-- This adds a fade in fade out loading -->
+            <span class="oozeSearchResultReportedToAIV oozeLoading">AIV</span>
+          {:else if user.reportedToAIV === true}
+            <span class="oozeSearchResultReportedToAIV aivReported"
+              >AIV Report</span
+            >
+          {:else}
+            <span class="oozeSearchResultReportedToAIV aivNotReported">AIV</span
+            >
           {/if}
 
-          <span class="oozeSearchResultMoreInfo">
-            {user.block.blockreason}<br /><br />
-            <span>
-              <strong>Additional info:</strong> Blocked by {user.block
-                .blockedby} on {new Date(
-                user.block.blockedtimestamp
-              ).toLocaleString()}<br />
-              <strong>Expires:</strong>
-              {user.block.blockexpiry === "infinite"
-                ? "Never"
-                : user.block.blockexpiry}
+          <!-- Quality indicator -->
+          <UserLiftWingIntel
+            username={user.username}
+            editCount={user.editCount}
+            isReportedToAIV={user.reportedToAIV}
+            warningLevel={user.warningLevel}
+          />
+
+          {#if Object.keys(user.block).length > 0}
+            <span class="oozeSearchResultBlock">Blocked</span>
+            {#if user.block.blocknocreate === ""}
+              <span class="oozeSearchResultBlockExtra"
+                >Page creation blocked</span
+              >
+            {/if}
+
+            {#if user.block.blockemail === ""}
+              <span class="oozeSearchResultBlockExtra">Email blocked</span>
+            {/if}
+
+            <span class="oozeSearchResultMoreInfo">
+              {user.block.blockreason}<br /><br />
+              <span>
+                <strong>Additional info:</strong> Blocked by {user.block
+                  .blockedby} on {new Date(
+                  user.block.blockedtimestamp
+                ).toLocaleString()}<br />
+                <strong>Expires:</strong>
+                {user.block.blockexpiry === "infinite"
+                  ? "Never"
+                  : user.block.blockexpiry}
+              </span>
             </span>
+          {/if}
+        {:else}
+        <!-- We use basic when there are a large number of results - if we have to load them require a click -->
+          <span class="oozeSearchResultMoreInfo">
+            Click to load insights
           </span>
         {/if}
       </div>
