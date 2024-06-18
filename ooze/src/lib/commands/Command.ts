@@ -15,6 +15,7 @@ export interface Command {
     arguments?: CommandArgument[];
     validate: (args: string[]) => boolean;
     headerComponent?: any;
+    noStateBoundHeader?: boolean;
 }
 
 export enum CommandArgumentType {
@@ -33,6 +34,7 @@ export interface CommandArgument {
     placeholder?: string; // This shows when typing in the argument
     validate: (arg: string) => string | true; // Return string if invalid, true if valid
     helperElement?: any; // This shows when the argument is selected - used for shortcuts etc
+    noBindHelper?: boolean; // Don't bind the helper element to the commandInputValue
     optional?: boolean;
 }
 

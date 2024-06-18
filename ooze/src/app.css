@@ -475,3 +475,13 @@ button.oozeSearchResultWarningLevel.active {
   gap: 0.25rem;
   align-items: center;
 }
+
+.oozeTextStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.oozeTextStack * {
+  font-size: small;
+}

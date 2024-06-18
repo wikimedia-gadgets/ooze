@@ -19,6 +19,7 @@
   import OozeUiWrapper from "./OozeUIWrapper.svelte";
   import { CanUseOoze } from "./commands/RestrictFeatureLevel";
   import MenuButtonInsight from "./commands/enwiki/intelligence/MenuButtonInsight.svelte";
+  import AdvanceTutorialText from "./commands/ui/AdvanceTutorialText.svelte";
 
   const { DemoModeEnabled } = CanUseOoze._;
 
@@ -38,7 +39,7 @@
   let commandPalletPlaceholder = "Type a command, or use the buttons below";
 
   // Argument number - used to handle input for commands and arguments. -1 means waiting for command
-  let argumentNumber = -1;
+  let argumentNumber: number = -1;
 
   // Arguments are filled in order, so we only need to get the validation error for the current argument
   let currentArgumentValidationError = "";
@@ -55,18 +56,27 @@
   // Has just gone back? This means when force advance, we go back instead of forward
   let justWentBack = false;
 
-  $: if (commandBeingTyped && commandBeingTyped.arguments) {
+  $: if (
+    commandBeingTyped &&
+    commandBeingTyped.arguments &&
+    argumentNumber > -1 &&
+    argumentNumber !== undefined
+  ) {
     commandPalletInputIcon =
       commandBeingTyped.arguments[argumentNumber]?.icon ??
       cdxIconFunctionArgument;
 
     commandPalletPlaceholder =
       commandBeingTyped.arguments[argumentNumber]?.placeholder ??
-      `Enter ${commandBeingTyped.arguments[argumentNumber]?.name ?? "argument"} for ${commandBeingTyped.name}`;
+      `Enter ${commandBeingTyped.arguments[argumentNumber]?.name ?? `argument ${argumentNumber}`} for ${commandBeingTyped.name}`;
   }
 
   // On argument change, if argument value already set set commandInputValue to it
-  $: if (shouldRefetchArgumentValues && argumentNumber > -1) {
+  $: if (
+    shouldRefetchArgumentValues &&
+    argumentNumber > -1 &&
+    argumentNumber !== undefined
+  ) {
     commandInputValue = argumentValues[argumentNumber] ?? "";
     shouldRefetchArgumentValues = false;
   }
@@ -120,8 +130,24 @@
     textInput?.querySelector("input")?.focus();
   }
 
-  // Advanced mode only
   function advanceParam() {
+    if (!commandBeingTyped && argumentNumber !== -1) {
+      throw new Error(
+        "Advance called with no command being typed when counter is not -1"
+      );
+    }
+
+    if (isNaN(argumentNumber)) {
+      throw new Error(`[ooze bug] Argument number is not a number
+      If you are seeing this error in your command, if you have a header element set that
+      does not request the argument or command information, set noStateBoundHeader to true.`);
+    }
+
+    console.log(
+      "[ooze] advanceParam",
+      argumentNumber,
+      commandBeingTyped?.arguments?.length ?? "no command yet or args missing"
+    );
     justWentBack = false;
 
     // If there are is a queued override, use it (i.e. shortcuts)
@@ -130,44 +156,53 @@
       queuedOverrideInputValue = null;
     }
 
-    switch (argumentNumber) {
-      case -1:
-        const command = Commands[commandInputValue.trim().toLowerCase()];
-        // If argument number is -1, we are waiting for an argument
-        if (command) {
-          firstCommandNotFound = false;
-          commandBeingTyped = command;
-          commandInputValue = "";
-          argumentNumber = 0;
-        } else {
-          firstCommandNotFound = true;
-        }
-        break;
-      default:
-        // Move on - before doing so, ensure the argument is valid
-        if (commandBeingTyped?.arguments) {
-          const validation =
-            commandBeingTyped.arguments[argumentNumber]?.validate(
-              commandInputValue
-            );
-
-          // Validation error? Set the error and return
-          if (validation !== true) {
-            currentArgumentValidationError = validation;
-            return;
-          }
-        }
-
-        // Set the argument value
-        argumentValues[argumentNumber] = commandInputValue.trim();
-        if (
-          argumentNumber + 1 <
-          (commandBeingTyped?.arguments?.length as number)
-        )
-          argumentNumber++;
+    if (argumentNumber === -1) {
+      console.log("[ooze] advanceParam -1", commandInputValue);
+      const command = Commands[commandInputValue.trim().toLowerCase()];
+      // If argument number is -1, we are waiting for an argument
+      if (command) {
+        firstCommandNotFound = false;
+        commandBeingTyped = command;
         commandInputValue = "";
-        break;
+        argumentNumber = 0;
+        console.log("[ooze] command found", command, argumentNumber);
+      } else {
+        firstCommandNotFound = true;
+      }
+      return;
     }
+
+    // Default process when we're advancing an argument
+
+    // Move on - before doing so, ensure the argument is valid
+    if (commandBeingTyped?.arguments) {
+      const validation =
+        commandBeingTyped.arguments[argumentNumber]?.validate(
+          commandInputValue
+        );
+
+      // Validation error? Set the error and return
+      if (validation !== true) {
+        currentArgumentValidationError = validation;
+        return;
+      }
+    }
+
+    // Set the argument value
+    argumentValues[argumentNumber] = commandInputValue.trim();
+
+    // If there are more arguments, move on
+    console.log(
+      "[ooze] more arguments",
+      argumentNumber,
+      commandBeingTyped?.arguments?.length
+    );
+    if (argumentNumber + 1 < (commandBeingTyped?.arguments?.length as number)) {
+      argumentNumber++;
+    } else {
+      console.log("[ooze] no more arguments", argumentNumber);
+    }
+    commandInputValue = "";
   }
 
   function goBackParam() {
@@ -332,32 +367,48 @@
       <!-- Content -->
       <div class="oozeMenuContent">
         <!-- If there if a header component for this command, render it -->
+        <!-- Note: Use noBindHeader to prevent bugs when your header doesn't take in the values -->
         {#if commandBeingTyped?.headerComponent}
           <div class="oozeMenuCommandHeader">
-            <svelte:component
-              this={commandBeingTyped.headerComponent}
-              bind:argumentValues
-              bind:argumentNumber
-              bind:commandInputValue
-            />
+            {#if commandBeingTyped.noStateBoundHeader}
+              <svelte:component this={commandBeingTyped.headerComponent} />
+            {:else}
+              <svelte:component
+                this={commandBeingTyped.headerComponent}
+                bind:argumentValues
+                bind:argumentNumber
+                bind:commandInputValue
+              />
+            {/if}
           </div>
         {/if}
 
         <!-- If there is a helper component for this argument, render it -->
         {#if commandBeingTyped?.arguments && commandBeingTyped.arguments[argumentNumber]?.helperElement}
           <div class="oozeMenuCommandHelper">
-            <svelte:component
-              this={commandBeingTyped.arguments[argumentNumber].helperElement}
-              bind:commandInputValue
-              {argumentValues}
-              on:overrideInputValue={helperOverrideInputValue}
-              on:setInputValue={helperSetInputValue}
-              on:resetInputValue={helperResetInputValue}
-              on:forceAdvanceParam={helperForceAdvanceParam}
-            />
+            <!-- Bound and unbound elements to prevent commandInputValue being undefined -->
+            {#if commandBeingTyped.arguments[argumentNumber].noBindHelper}
+              <svelte:component
+                this={commandBeingTyped.arguments[argumentNumber].helperElement}
+                {argumentValues}
+                on:overrideInputValue={helperOverrideInputValue}
+                on:setInputValue={helperSetInputValue}
+                on:resetInputValue={helperResetInputValue}
+                on:forceAdvanceParam={helperForceAdvanceParam}
+              />
+            {:else}
+              <svelte:component
+                this={commandBeingTyped.arguments[argumentNumber].helperElement}
+                bind:commandInputValue
+                {argumentValues}
+                on:overrideInputValue={helperOverrideInputValue}
+                on:setInputValue={helperSetInputValue}
+                on:resetInputValue={helperResetInputValue}
+                on:forceAdvanceParam={helperForceAdvanceParam}
+              />
+            {/if}
           </div>
         {/if}
-
         <!-- At top - command pallet - focused when opened -->
         <CodexTextInput
           bind:container={textInput}
@@ -420,10 +471,11 @@
         <span>
           <strong>The Command Pallet</strong><br />
           <span>
-            Awesome! Welcome to the command pallet. Let's run a command to get started.
+            Awesome! Welcome to the command pallet. Let's run a command to get
+            started.
           </span>
           <span class="oozeInitDialog">
-            Type <strong>start</strong> and press <strong>TAB</strong> or tap <CodexIcon icon={cdxIconArrowNext.ltr.toString()} />
+            Type <strong>start</strong> and <AdvanceTutorialText />
           </span>
         </span>
       </CodexMessage>

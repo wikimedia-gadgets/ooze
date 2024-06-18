@@ -17,7 +17,9 @@ import UserWarningLevelAdvancer from "./intelligence/UserWarningLevelAdvancer.sv
 import RestrictFeatureLevel from "../RestrictFeatureLevel";
 import PageSearchIntel from "./intelligence/PageSearchIntel.svelte";
 import DeleteSqlDb from "../settings/DeleteSqlDb.svelte";
-import OozeWelcomeDialog from "../settings/OozeWelcomeDialog.svelte";
+import TutorialHelper1 from "../settings/welcome/TutorialHelper1.svelte";
+import TutorialHelper2 from "../settings/welcome/TutorialHelper2.svelte";
+import PrivacyAndOoze from "../settings/welcome/PrivacyAndOoze.svelte";
 
 export const Commands: Record<string, Command> = {
     // Export sqlite database
@@ -62,6 +64,7 @@ export const Commands: Record<string, Command> = {
         // Most of the settings can be done through the settings UI
         // but some people may prefer to use the command line
         headerComponent: SettingsUi,
+        noStateBoundHeader: true,
     },
 
     // Welcome to OOZE page.
@@ -71,14 +74,40 @@ export const Commands: Record<string, Command> = {
         description: "OOZE OOBE",
         
         validate: () => true,
-        headerComponent: OozeWelcomeDialog,
+
         arguments: [
             {
-                name: "Continue",
-                description: "Continue",
+                name: "1. Introduction to commands",
+                description: "An introduction to commands and arguments.",
                 type: CommandArgumentType.plainText,
-                placeholder: "Press TAB or tap the arrow to continue",
-                validate: () => true
+                placeholder: "This is an optional argument",
+                validate: () => true,
+
+                helperElement: TutorialHelper1,
+                noBindHelper: true,
+            },
+
+            {
+                name: "2. Special arguments",
+                description: "",
+                type: CommandArgumentType.plainText,
+                placeholder: "Search for a user...",
+                validate: v => v,
+
+                helperElement: TutorialHelper2,
+                noBindHelper: true,
+            },
+
+            // Last steps
+
+            {
+                name: "x. Privacy",
+                description: "OOZE Privacy",
+                type: CommandArgumentType.plainText,
+                placeholder: "This is an optional argument",
+                validate: () => true,
+                helperElement: PrivacyAndOoze,
+                noBindHelper: true,
             }
         ],
     },
