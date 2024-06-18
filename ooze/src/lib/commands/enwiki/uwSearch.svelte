@@ -66,12 +66,10 @@
         {/if}
       </span>
     </div>
-  {/each}
-
-  <!-- No results? -->
-  {#if Object.keys(searchResults).length === 0}
+  {:else}
+  <!-- No Results -->
     <div class="oozeSearchError">
       No results. If you'd like a template added, please let us know.
     </div>
-  {/if}
+  {/each}
 </div>

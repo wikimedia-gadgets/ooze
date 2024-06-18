@@ -466,3 +466,12 @@ button.oozeSearchResultWarningLevel.active {
   font-size: small;
   padding: 0.5rem;
 }
+
+.oozeInitDialog {
+  display: flex;
+  font-size: small;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}

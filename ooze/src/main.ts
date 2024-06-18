@@ -7,6 +7,15 @@ import { CanUseOoze } from "./lib/commands/RestrictFeatureLevel";
 import RegisterPageVisit from './lib/worker/functions/RegisterPageVisit';
 import GetPageVisitHistory from './lib/worker/functions/PageVisitHistory';
 
+// Check we are actually on a MediaWiki page
+if (window.mw === undefined) {
+  document.body.innerHTML = `<h2>Don't panic!</h2>
+  <p>Hi developer! If you're seeing this message, everything is set up correctly, however it looks like you're not on a MediaWiki page.
+  OOZE is a tool that is designed to work on MediaWiki pages, and as such, it won't work on this page. In the root of this project, you'll find a 
+  <pre>preflight.js</pre> file. Copy this and modify it to your needs then add it to your common.js. Simple!</p>`;
+  throw new Error("OOZE is not supported on this page.");
+}
+
 // Perms, for use globally
 new CanUseOoze();
 

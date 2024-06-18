@@ -5,6 +5,7 @@
     cdxIconSettings,
     cdxIconClose,
     cdxIconFunctionArgument,
+    cdxIconArrowNext,
   } from "@wikimedia/codex-icons";
 
   import CodexToggleButton from "./vue/CodexToggleButton.svelte";
@@ -22,6 +23,8 @@
   const { DemoModeEnabled } = CanUseOoze._;
 
   const oozeVer = APP_VERSION;
+
+  const oozeHasBeenConfigured = false;
 
   let commandInputValue = "";
 
@@ -104,7 +107,9 @@
   };
 
   // Add keydown listener when component is created
-  onMount(() => window.addEventListener("keydown", menuKeyListener));
+  onMount(() => {
+    window.addEventListener("keydown", menuKeyListener);
+  });
 
   // Remove keydown listener when component is destroyed
   onDestroy(() => window.removeEventListener("keydown", menuKeyListener));
@@ -387,5 +392,43 @@
     </div>
   {/if}
 
-  <MenuButtonInsight />
+  <!-- Page insights/quick controls, only shown on a configured OOZE -->
+  {#if !oozeHasBeenConfigured}
+    <!-- OOZE Not configured, tutorial part 1 makes them type the "start" command to run the tutorial -->
+    <!-- 1. Menu not open -->
+    {#if !menuOpen}
+      <CodexMessage
+        props={{
+          class: "oozeNotConfigured",
+        }}
+      >
+        <span>
+          <strong>Welcome to OOZE!</strong><br />
+          <span>It's great to have you here.</span>
+          <span class="oozeInitDialog">
+            To get started, open the OOZE tool menu by pressing "/" on your
+            keyboard, or by tapping <CodexIcon icon={cdxIconViewCompact} />
+          </span>
+        </span>
+      </CodexMessage>
+    {:else if !commandBeingTyped}
+      <CodexMessage
+        props={{
+          class: "oozeNotConfigured",
+        }}
+      >
+        <span>
+          <strong>The Command Pallet</strong><br />
+          <span>
+            Awesome! Welcome to the command pallet. Let's run a command to get started.
+          </span>
+          <span class="oozeInitDialog">
+            Type <strong>start</strong> and press <strong>TAB</strong> or tap <CodexIcon icon={cdxIconArrowNext.ltr.toString()} />
+          </span>
+        </span>
+      </CodexMessage>
+    {/if}
+  {:else}
+    <MenuButtonInsight />
+  {/if}
 </OozeUiWrapper>

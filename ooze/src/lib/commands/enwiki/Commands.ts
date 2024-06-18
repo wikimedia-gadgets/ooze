@@ -17,6 +17,7 @@ import UserWarningLevelAdvancer from "./intelligence/UserWarningLevelAdvancer.sv
 import RestrictFeatureLevel from "../RestrictFeatureLevel";
 import PageSearchIntel from "./intelligence/PageSearchIntel.svelte";
 import DeleteSqlDb from "../settings/DeleteSqlDb.svelte";
+import OozeWelcomeDialog from "../settings/OozeWelcomeDialog.svelte";
 
 export const Commands: Record<string, Command> = {
     // Export sqlite database
@@ -61,6 +62,25 @@ export const Commands: Record<string, Command> = {
         // Most of the settings can be done through the settings UI
         // but some people may prefer to use the command line
         headerComponent: SettingsUi,
+    },
+
+    // Welcome to OOZE page.
+    // A basic tutorial on how to use OOZE. Also provides the database encryption setup.
+    "start" : {
+        name: "Start OOZE",
+        description: "OOZE OOBE",
+        
+        validate: () => true,
+        headerComponent: OozeWelcomeDialog,
+        arguments: [
+            {
+                name: "Continue",
+                description: "Continue",
+                type: CommandArgumentType.plainText,
+                placeholder: "Press TAB or tap the arrow to continue",
+                validate: () => true
+            }
+        ],
     },
 
 

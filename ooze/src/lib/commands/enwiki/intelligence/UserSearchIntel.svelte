@@ -472,6 +472,11 @@ If on a userpage: .u - the last userpage visited will be this one
           </span>
         {/if}
       </div>
+    {:else}
+    <!-- No results -->
+    <div class="oozeSearchResult oozeSearchResultNoResults">
+      No results
+    </div>
     {/each}
   </div>
 {/if}
