@@ -67,9 +67,11 @@
       </span>
     </div>
   {:else}
-  <!-- No Results -->
+  <!-- No Results - only shown if value is not empty -->
+    {#if commandInputValue.length > 0}
     <div class="oozeSearchError">
       No results. If you'd like a template added, please let us know.
     </div>
+    {/if}
   {/each}
 </div>

@@ -18,8 +18,9 @@ import RestrictFeatureLevel from "../RestrictFeatureLevel";
 import PageSearchIntel from "./intelligence/PageSearchIntel.svelte";
 import DeleteSqlDb from "../settings/DeleteSqlDb.svelte";
 import TutorialHelper1 from "../settings/welcome/TutorialHelper1.svelte";
-import TutorialHelper2 from "../settings/welcome/TutorialHelper2.svelte";
 import PrivacyAndOoze from "../settings/welcome/PrivacyAndOoze.svelte";
+import WelcomeTutorialHelper from "../settings/welcome/WelcomeTutorialHelper.svelte";
+import TutorialSummary from "../settings/welcome/TutorialSummary.svelte";
 
 export const Commands: Record<string, Command> = {
     // Export sqlite database
@@ -72,6 +73,7 @@ export const Commands: Record<string, Command> = {
     "start" : {
         name: "Start OOZE",
         description: "OOZE OOBE",
+        headerComponent: WelcomeTutorialHelper,
         
         validate: () => true,
 
@@ -88,13 +90,58 @@ export const Commands: Record<string, Command> = {
             },
 
             {
-                name: "2. Special arguments",
+                name: "2. Intelligence",
                 description: "",
-                type: CommandArgumentType.plainText,
+                type: CommandArgumentType.user,
                 placeholder: "Search for a user...",
-                validate: v => v,
+                validate: v => v !== mw.config.get("wgUserName") ? "Find yourself to continue" : true,
 
-                helperElement: TutorialHelper2,
+                helperElement: UserSearchIntel,
+            },
+
+            {
+                name: "3a. Simple Shortcuts",
+                description: "OOZE shortcuts",
+                type: CommandArgumentType.user,
+                placeholder: "Try typing .me",
+                validate: v => v == mw.config.get("wgUserName") ? true : "Try again",
+                helperElement: UserSearchIntel,
+            },
+
+            {
+                name: "3b. Dynamic Shortcuts",
+                description: "OOZE shortcuts",
+                type: CommandArgumentType.user,
+                placeholder: "Try typing .e",
+                validate: () => true,
+                helperElement: UserSearchIntel,
+            },
+
+            {
+                name: "3c. Shortcut Arguments",
+                description: "OOZE shortcuts",
+                type: CommandArgumentType.user,
+                placeholder: "Try typing .e [page name]",
+                validate: () => true,
+                helperElement: UserSearchIntel,
+            },
+
+            {
+                name: "3d. User Filters",
+                description: "OOZE shortcuts",
+                type: CommandArgumentType.user,
+                placeholder: "Try typing .e [page name] [user filter]",
+                validate: () => true,
+            },
+            
+            // 4. Summary of interface
+            {
+                name: "4. Interface",
+                description: "OOZE interface",
+                type: CommandArgumentType.plainText,
+                placeholder: "This is an optional argument",
+                validate: () => true,
+                helperElement: TutorialSummary,
                 noBindHelper: true,
             },
 
